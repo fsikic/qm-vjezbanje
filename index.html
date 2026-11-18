@@ -97,7 +97,8 @@ input.ans{width:200px;padding:10px 12px;border:1px solid var(--bd);background:va
 .opts button.sel{border-color:var(--fg);background:var(--soft)}
 details.ex2{border:1px solid var(--bd);background:var(--card);padding:10px 14px;margin-top:8px}details.ex2 summary{cursor:pointer;font-weight:600}details.ex2 .q{font-size:16px}
 .navl{display:flex;justify-content:space-between;gap:10px;margin-top:24px;flex-wrap:wrap}
-@media(max-width:560px){.tag{display:none}h1{font-size:24px}.cd{display:none}}
+.cshort{display:none}
+@media(max-width:560px){.tag{display:none}h1{font-size:24px}.hin{gap:8px;padding-left:calc(12px + env(safe-area-inset-left));padding-right:calc(12px + env(safe-area-inset-right))}.brand{min-width:0;gap:10px}.brand>div:last-child{min-width:0}.wm{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.right{gap:6px;flex-shrink:0}.ib{width:34px;height:34px}.cd{padding:6px 7px;font-size:10px}.cfull{display:none}.cshort{display:inline}}
 </style>
 </head>
 <body>
@@ -618,7 +619,7 @@ $('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.remove('o
 function setDark(d){document.documentElement.classList.toggle('dark',d);try{localStorage.setItem('qm_dark',d?'1':'0')}catch(e){}}
 $('#dm').onclick=()=>setDark(!document.documentElement.classList.contains('dark'));
 (function(){let d=null;try{d=localStorage.getItem('qm_dark')}catch(e){}if(d===null)d=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'1':'0';document.documentElement.classList.toggle('dark',d==='1')})();
-(function(){const t=new Date(2026,11,15),n=new Date();n.setHours(0,0,0,0);const d=Math.round((t-n)/864e5);$('#cd').textContent=d>0?`15.12.2026. · još ${d} d`:d===0?'Danas je 15.12.2026.':'';if(d<0)$('#cd').style.display='none'})();
+(function(){const t=new Date(2026,11,15),n=new Date();n.setHours(0,0,0,0);const d=Math.round((t-n)/864e5);const c=$('#cd');if(d>0){c.innerHTML=`<span class="cfull">15.12.2026. · još ${d} d</span><span class="cshort">${d} d</span>`;c.title='Do ispita 15.12.2026.: '+d+' dana'}else if(d===0){c.innerHTML='<span class="cfull">Danas je 15.12.2026.</span><span class="cshort">Danas!</span>'}else c.style.display='none'})();
 mem=store.get();render();
 if(sync.code)syncNow();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&sync.code)syncNow()});
