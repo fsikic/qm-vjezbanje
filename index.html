@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e1b4b">
+<meta name="description" content="Vježbanje, lekcije i kviz iz kolegija Kvantitativne metode odlučivanja u poslovnoj praksi.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="QM Vježbanje">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>QM Vježbanje – Kvantitativne metode odlučivanja</title>
+<style>
+:root{--bg:#f5f5f4;--fg:#1e1b4b;--card:#fff;--bd:#d6d3d1;--mut:#78716c;--acc:#9b1c1c;--ok:#166534;--btn:#1e1b4b;--btnfg:#fff;--soft:#e7e5e4}
+html.dark{--bg:#1e1b4b;--fg:#f5f5f4;--card:rgba(255,255,255,.05);--bd:rgba(255,255,255,.18);--mut:#a8a29e;--acc:#f87171;--ok:#86efac;--btn:#f5f5f4;--btnfg:#1e1b4b;--soft:rgba(255,255,255,.08)}
+*{box-sizing:border-box;border-radius:0!important}
+html{-webkit-text-size-adjust:100%}body{-webkit-tap-highlight-color:transparent;padding-bottom:env(safe-area-inset-bottom);margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;text-transform:uppercase;letter-spacing:.08em;font-size:11px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;background:var(--soft);padding:1px 5px}
+header.hdr{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)}
+.hin{max-width:64rem;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 12px calc(20px + env(safe-area-inset-left));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;background:var(--btn);color:var(--btnfg);display:grid;place-items:center;font:700 13px ui-monospace,Menlo,monospace;letter-spacing:.05em}
+.wm{font-weight:800;letter-spacing:-.02em;font-size:16px;line-height:1.1}
+.tag{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.1em;color:var(--mut);text-transform:uppercase}
+.right{display:flex;align-items:center;gap:8px}
+.ib{width:36px;height:36px;border:1px solid var(--bd);background:var(--card);color:var(--fg);font:700 15px ui-monospace,Menlo,monospace;cursor:pointer}
+.ib:hover{border-color:var(--fg)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid #dc2626;outline-offset:2px}
+.cd{border:1px solid var(--bd);padding:6px 10px;background:var(--card);white-space:nowrap}
+main{max-width:64rem;margin:0 auto;padding:24px 20px 80px}
+nav.tabs{display:flex;gap:0;border:1px solid var(--bd);margin-bottom:24px;flex-wrap:wrap;background:var(--card)}
+nav.tabs button{flex:1;min-width:120px;padding:12px 10px;background:none;border:0;border-right:1px solid var(--bd);color:var(--fg);cursor:pointer;font:600 11px ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase}
+nav.tabs button:last-child{border-right:0}
+nav.tabs button.on{background:var(--btn);color:var(--btnfg)}
+h1{font-size:30px;letter-spacing:-.03em;margin:0 0 6px;line-height:1.1}
+h2{font-size:20px;letter-spacing:-.02em;margin:0 0 8px}
+p.lead{color:var(--mut);margin:0 0 20px;max-width:42rem}
+.eyebrow{color:var(--acc);font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--bd);padding:16px}
+button.card{text-align:left;cursor:pointer;color:var(--fg);font:inherit;width:100%}
+button.card:hover{border-color:var(--fg)}
+.card .blk{font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.12em;color:var(--acc);text-transform:uppercase}
+.card .ct{font-weight:700;font-size:16px;margin:4px 0 2px;letter-spacing:-.01em}
+.card .cd2{color:var(--mut);font-size:13px}
+.bar{height:4px;background:var(--soft);margin-top:12px}
+.bar i{display:block;height:100%;background:var(--fg)}
+.btn{background:var(--btn);color:var(--btnfg);border:1px solid var(--btn);padding:10px 18px;font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.btn:hover{opacity:.88}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--bd)}
+.btn.ghost:hover{border-color:var(--fg);opacity:1}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.q{font-size:18px;margin:6px 0 16px;max-width:44rem}
+.q table,.tbl{border-collapse:collapse;margin:10px 0;font-size:14px}
+.q th,.q td,.tbl th,.tbl td{border:1px solid var(--bd);padding:6px 12px;text-align:center}
+.q th,.tbl th{background:var(--soft);font-weight:600}
+input.ans{width:200px;padding:10px 12px;border:1px solid var(--bd);background:var(--card);color:var(--fg);font:600 16px ui-monospace,Menlo,monospace}
+.res{margin-top:18px;padding:14px 16px;border:1px solid var(--bd);border-left:4px solid var(--fg);background:var(--card)}
+.res.ok{border-left-color:var(--ok)}.res.no{border-left-color:var(--acc)}
+.res b.v{font-family:ui-monospace,Menlo,monospace}
+.steps p{margin:6px 0}
+.hintbox{margin-top:12px;color:var(--mut);font-size:14px;border-left:2px solid var(--bd);padding-left:12px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:14px}
+.opts button{padding:12px;background:var(--card);border:1px solid var(--bd);color:var(--fg);cursor:pointer;font:600 13px system-ui;text-align:left}
+.opts button:hover:not(:disabled){border-color:var(--fg)}
+.opts button.right2{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.opts button.wrong{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.opts button:disabled{cursor:default}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.fgrid .card div{margin:6px 0;font-size:14px}
+.prog{width:100%;border-collapse:collapse;font-size:14px;background:var(--card)}
+.prog th,.prog td{border:1px solid var(--bd);padding:8px 12px;text-align:left}
+.ztab th,.ztab td{padding:5px 7px;text-align:center;font:13px ui-monospace,Menlo,monospace;white-space:nowrap}.ztab tr:nth-child(even) td{background:var(--soft)}.ztab th:first-child{position:sticky;left:0}
+.prog th{font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;background:var(--soft)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+.modal.on{display:flex}
+.mbox{background:var(--bg);border:1px solid var(--fg);max-width:40rem;width:100%;padding:24px;position:relative}
+.mbox h2{margin-top:0}.mbox li{margin:6px 0}
+.x{position:absolute;top:10px;right:10px}
+.simbar{display:flex;justify-content:space-between;margin-bottom:12px;color:var(--mut)}
+.sec{margin-top:14px}
+.sec h3{margin:0 0 8px;font:600 11px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+.sec ul,.sec ol{margin:0;padding-left:20px}.sec li{margin:5px 0}
+.ex{border:1px solid var(--bd);background:var(--card);padding:16px;margin-top:10px}
+.ex .zad{font-weight:600;margin-bottom:10px}
+.lstep{border-left:3px solid var(--fg);padding:6px 0 6px 12px;margin:8px 0}
+.lstep .n{font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.12em;color:var(--mut);text-transform:uppercase}
+.final{margin-top:10px;padding:10px 12px;background:var(--soft);font-weight:700}
+.warn{border-left:3px solid var(--acc);padding:4px 0 4px 12px;margin:6px 0}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:16px}
+.hgrid .num{font:700 28px ui-monospace,Menlo,monospace;color:var(--acc)}
+.navl{display:flex;justify-content:space-between;gap:10px;margin-top:24px;flex-wrap:wrap}
+@media(max-width:560px){.tag{display:none}h1{font-size:24px}.cd{display:none}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hin">
+  <div class="brand" data-tab="home" role="button" tabindex="0" title="Početna" style="cursor:pointer"><div class="logo">QM</div><div><div class="wm">Kvantitativne metode</div><div class="tag">Vježbanje · odlučivanje u poslovnoj praksi</div></div></div>
+  <div class="right"><span class="cd mono" id="cd"></span><button class="btn" id="inst" style="display:none;padding:8px 10px;font-size:11px">Instaliraj</button><button class="ib" id="dm" title="Tamni / svijetli način" aria-label="Tamni način">◐</button><button class="ib" id="help" title="Pomoć" aria-label="Pomoć">?</button></div>
+</div></header>
+<main>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="view"></div>
+</main>
+
+<div class="modal" id="modal"><div class="mbox">
+  <button class="ib x" id="mx" aria-label="Zatvori">×</button>
+  <div class="eyebrow">Pomoć</div>
+  <h2>Kako radi ova aplikacija</h2>
+  <p>Aplikacija služi za vježbanje gradiva iz Vježbi 2, 3, 4, 4a i 5. Svaki put se generira <b>novi zadatak s drugim brojevima</b> istog tipa kao u tvojim vježbama, pa učiš postupak, a ne pamtiš rezultate.</p>
+  <ol>
+    <li><b>Početna:</b> klikni na logo ili karticu <i>Početna</i> bilo kada za povratak na glavni izbornik s preporučenim redoslijedom i prijedlogom najslabije teme.</li>
+    <li><b>Uči:</b> 9 lekcija (po jedna za svaku temu): što je, kako prepoznati, formule, postupak, riješeni primjeri iz tvojih vježbi koje otkrivaš korak po korak i česte greške. Na kraju lekcije gumb vodi na vježbanje te teme.</li>
+    <li><b>Praksa:</b> odaberi temu (npr. Binomna) ili <i>Mješovito</i>. Upiši rezultat (zarez ili točka, može i postotak) i klikni <i>Provjeri</i> ili pritisni Enter. Dobiješ točan rezultat i cijeli postupak korak po korak. <i>Hint</i> pokazuje formulu.</li>
+    <li><b>Simulacija ispita:</b> 10 miješanih zadataka zaredom i ocjena na kraju. Radi je pred ispit.</li>
+    <li><b>Prepoznaj tip:</b> kratke priče iz zadataka, ti birate koja je distribucija (binomna, Poisson, hipergeometrijska, normalna, uniformna, eksponencijalna). Najveći izvor grešaka je baš pogrešan odabir formule.</li>
+    <li><b>Formule:</b> sažetak svih formula na jednom mjestu.</li>
+    <li><b>Z-tablica:</b> cijela tablica normalne distribucije (P(0&lt;Z&lt;z) ili P(Z&lt;z)) i polje za brzu provjeru z-vrijednosti.</li>
+    <li><b>Napredak:</b> točni/pokušani odgovori po temama, spremljeni u tvom pregledniku. Slabe teme ponavljaj češće.</li>
+  </ol>
+  <p><b>Na mobitelu kao aplikacija:</b> na Androidu (Chrome) klikni <i>Instaliraj</i> u zaglavlju ili izbornik ⋮ → <i>Dodaj na početni zaslon</i>. Na iPhoneu (Safari) klikni Podijeli → <i>Dodaj na početni zaslon</i>. Nakon prvog otvaranja radi i bez interneta.</p>
+  <p style="color:var(--mut);font-size:14px">Tolerancija: rezultat se priznaje ako je unutar zaokruživanja (npr. ±0,003 kod normalne distribucije zbog z-tablice). Gumb ◐ mijenja tamni/svijetli način. Odbrojavanje u zaglavlju vodi do 15.12.2026.</p>
+</div></div>
+
+<script>
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const fmt=(x,d=4)=>Number(x).toFixed(d).replace('.',',');
+const sg=x=>(x<0?'−':'')+fmt(Math.abs(x),2);
+function comb(n,k){if(k<0||k>n)return 0;k=Math.min(k,n-k);let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return Math.round(r)}
+function fact(n){let r=1;for(let i=2;i<=n;i++)r*=i;return r}
+function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+0.3275911*x);const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y}
+const Phi=z=>0.5*(1+erf(z/Math.SQRT2));
+const tab=z=>Math.round(Math.abs(Phi(Math.abs(z))-0.5)*1e4)/1e4; // P(0<Z<|z|)
+const phi4=z=>z>=0?0.5+tab(z):0.5-tab(z);
+const store={get(){try{return JSON.parse(localStorage.getItem('qm_stats')||'{}')}catch(e){return{}}},set(o){try{localStorage.setItem('qm_stats',JSON.stringify(o))}catch(e){}}};
+let mem={};
+function record(id,ok){const s=Object.keys(mem).length?mem:store.get();s[id]=s[id]||{ok:0,tot:0};s[id].tot++;if(ok)s[id].ok++;mem=s;store.set(s)}
+function stats(){return Object.keys(mem).length?mem:store.get()}
+
+/* ---------- generators ---------- */
+function gVenn(){
+  const [a,b]=pick([['kavu','čaj'],['Netflix','HBO Max'],['CINESTAR','MOVIEPLEX'],['Booking','Airbnb']]);
+  let N,A,B,both;
+  do{N=ri(15,30)*10;A=ri(30,90);B=ri(25,80);both=ri(4,18)}while(A+B-both>=N-10);
+  const u=A+B-both,ans=(N-u)/N;
+  return{text:`Od ${N} ispitanika, ${A} ih preferira ${a}, ${B} preferira ${b}, a ${both} ih preferira oba. Kolika je vjerojatnost da slučajno odabrani ispitanik ne preferira ni jedno od ponuđenog?`,
+   ans,tol:.0015,dec:4,hint:'P(A∪B) = P(A) + P(B) − P(A∩B); traženo je 1 − P(A∪B). Nacrtaj Vennov dijagram.',
+   steps:`<p>Unija (barem jedno): <code>${A} + ${B} − ${both} = ${u}</code></p><p>Nijedno: <code>${N} − ${u} = ${N-u}</code></p><p><code>P = ${N-u}/${N} = ${fmt(ans)}</code></p>`}
+}
+function gTable(){
+  const rows=['Strana','Domaća'],cols=['SUV','Compact','Mid-sized'];
+  const m=[[ri(10,60),ri(20,100),ri(10,60)],[ri(30,100),ri(50,150),ri(20,80)]];
+  const R=m.map(r=>r.reduce((x,y)=>x+y,0)),C=cols.map((_,j)=>m[0][j]+m[1][j]),T=R[0]+R[1];
+  const tb=`<table><tr><th></th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>${rows.map((r,i)=>`<tr><th>${r}</th>${m[i].map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</table>`;
+  const v=ri(0,2);let q,ans,st,h;
+  if(v===0){q='Ako je jedno vozilo odabrano nasumično, kolika je vjerojatnost da je <b>strano ili SUV</b>?';ans=(R[0]+C[0]-m[0][0])/T;
+    st=`<p>Ukupno: <code>${T}</code>; strano = ${R[0]}, SUV = ${C[0]}, strano i SUV = ${m[0][0]}</p><p><code>P = ${R[0]}/${T} + ${C[0]}/${T} − ${m[0][0]}/${T} = ${fmt(ans)}</code></p>`;h='P(A ili B) = P(A) + P(B) − P(A i B).'}
+  else if(v===1){q='Ako je odabrano vozilo <b>strano</b>, kolika je vjerojatnost da je <b>SUV</b>?';ans=m[0][0]/R[0];
+    st=`<p>Uvjetna vjerojatnost: <code>P(SUV | strano) = P(SUV i strano)/P(strano) = ${m[0][0]}/${R[0]} = ${fmt(ans)}</code></p>`;h='P(A | B) = P(A i B) / P(B). Nazivnik je zbroj retka "strano".'}
+  else{q='Kolika je vjerojatnost da je nasumično odabrano vozilo <b>domaće i Compact</b>?';ans=m[1][1]/T;
+    st=`<p><code>P = ${m[1][1]}/${T} = ${fmt(ans)}</code></p>`;h='Zajednička vjerojatnost = broj u ćeliji / ukupno.'}
+  return{text:`Auto kuća ima u ponudi:${tb}${q}`,ans,tol:.0015,dec:4,hint:h,steps:st}
+}
+function gTree(){
+  const p=pick([.5,.6,.7]),r1=pick([.2,.25,.3,.35,.4]),r2=pick([.1,.15,.2,.25]);
+  const tot=p*r1+(1-p)*r2,v=ri(0,1);
+  const pr=Math.round(p*100),pm=100-pr;
+  const base=`U tvornici je zaposleno ${pr}% radnika u proizvodnji i ${pm}% u montaži. Prošle godine ozlijeđeno je ${Math.round(r1*100)}% radnika u proizvodnji i ${Math.round(r2*100)}% u montaži.`;
+  const common=`<p>Stablo: P(Proizv ∩ Ozlj) = <code>${fmt(p,2)}·${fmt(r1,2)} = ${fmt(p*r1)}</code>; P(Mont ∩ Ozlj) = <code>${fmt(1-p,2)}·${fmt(r2,2)} = ${fmt((1-p)*r2)}</code></p><p>P(Ozlj) = <code>${fmt(p*r1)} + ${fmt((1-p)*r2)} = ${fmt(tot)}</code></p>`;
+  if(v===0)return{text:`${base} Koliki je udio (vjerojatnost) da je slučajno odabrani radnik bio ozlijeđen?`,ans:tot,tol:.0015,dec:4,hint:'Zbroji grane stabla koje završavaju s "ozlijeđen": P(B) = ΣP(A)·P(B|A).',steps:common}
+  const a=(1-p)*r2/tot;
+  return{text:`${base} Ako je radnik bio ozlijeđen, kolika je vjerojatnost da je radio u <b>montaži</b>?`,ans:a,tol:.0015,dec:4,hint:'Bayes / uvjetna: P(Mont | Ozlj) = P(Mont ∩ Ozlj) / P(Ozlj).',steps:common+`<p><code>P(Mont | Ozlj) = ${fmt((1-p)*r2)}/${fmt(tot)} = ${fmt(a)}</code></p>`}
+}
+function gDisc(){
+  const w=[1,1,1,1,1,1];for(let i=0;i<14;i++)w[ri(0,5)]++;
+  const xs=[0,1,2,3,4,5],ps=w.map(v=>v/20);
+  const tb=`<table><tr><th>x</th>${xs.map(x=>`<th>${x}</th>`).join('')}</tr><tr><th>P(x)</th>${ps.map(p=>`<td>${fmt(p,2)}</td>`).join('')}</tr></table>`;
+  const E=xs.reduce((s,x,i)=>s+x*ps[i],0);
+  if(ri(0,1)===0)return{text:`Broj računala koje tvrtka proda u jednom danu ima distribuciju:${tb}Izračunajte očekivanu vrijednost E(X).`,ans:E,tol:.011,dec:2,hint:'E(X) = Σ xᵢ·pᵢ.',
+    steps:`<p><code>${xs.map((x,i)=>`${x}·${fmt(ps[i],2)}`).join(' + ')} = ${fmt(E,2)}</code></p>`}
+  const k=ri(2,4),ans=ps.slice(k).reduce((a,b)=>a+b,0);
+  return{text:`Broj računala koje tvrtka proda u jednom danu ima distribuciju:${tb}Odredite P(X ≥ ${k}).`,ans,tol:.0015,dec:4,hint:'Zbroji vjerojatnosti za sve vrijednosti x ≥ k.',
+    steps:`<p><code>P(X ≥ ${k}) = ${xs.slice(k).map((x,i)=>fmt(ps[k+i],2)).join(' + ')} = ${fmt(ans,2)}</code></p>`}
+}
+const bp=(n,p,k)=>comb(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k);
+function gBinom(){
+  const n=ri(8,16),p=pick([.05,.1,.2,.3,.4]),v=ri(0,2),pc=Math.round(p*100);
+  const intro=`Poznato je da je ${pc}% proizvoda neispravno. Uzima se slučajni uzorak od ${n} proizvoda.`;
+  const f=(k)=>`<code>P(${k}) = C(${n},${k})·${p}<sup>${k}</sup>·${fmt(1-p,2)}<sup>${n-k}</sup> = ${fmt(bp(n,p,k))}</code>`;
+  if(v===0){const k=ri(1,3);return{text:`${intro} Kolika je vjerojatnost da su <b>točno ${k}</b> neispravna?`,ans:bp(n,p,k),tol:.0011,dec:4,hint:'Binomna: P(x) = C(n,x)·pˣ·qⁿ⁻ˣ',steps:`<p>n=${n}, p=${p}, q=${fmt(1-p,2)}</p><p>${f(k)}</p>`}}
+  if(v===1){const a=1-bp(n,p,0);return{text:`${intro} Kolika je vjerojatnost da je <b>barem jedan</b> neispravan?`,ans:a,tol:.0011,dec:4,hint:'Komplement: P(x ≥ 1) = 1 − P(0).',steps:`<p>${f(0)}</p><p><code>P(x ≥ 1) = 1 − ${fmt(bp(n,p,0))} = ${fmt(a)}</code></p>`}}
+  const k=ri(2,3);let s=0,parts=[];for(let i=0;i<k;i++){s+=bp(n,p,i);parts.push(fmt(bp(n,p,i)))}
+  return{text:`${intro} Kolika je vjerojatnost da je <b>barem ${k}</b> neispravno?`,ans:1-s,tol:.0011,dec:4,hint:`Komplement: P(x ≥ ${k}) = 1 − [P(0)+…+P(${k-1})].`,steps:`<p>${Array.from({length:k},(_,i)=>`<div>${f(i)}</div>`).join('')}</p><p><code>P(x ≥ ${k}) = 1 − (${parts.join(' + ')}) = ${fmt(1-s)}</code></p>`}
+}
+const pp=(l,k)=>Math.exp(-l)*Math.pow(l,k)/fact(k);
+function gPois(){
+  const l=pick([1.5,2,2.5,3,4,5]),v=ri(0,2);
+  const intro=`Prosječan broj događaja (npr. nezgoda, kupnji, poziva) u promatranom razdoblju je λ = ${String(l).replace('.',',')}.`;
+  const f=k=>`<code>P(${k}) = e<sup>−${l}</sup>·${l}<sup>${k}</sup>/${k}! = ${fmt(pp(l,k))}</code>`;
+  if(v===0)return{text:`${intro} Kolika je vjerojatnost da se <b>neće dogoditi niti jedan</b>?`,ans:pp(l,0),tol:.0011,dec:4,hint:'Poisson: P(x) = e⁻ᵏ·λˣ / x!',steps:`<p>${f(0)}</p>`};
+  if(v===1){const k=ri(1,4);return{text:`${intro} Kolika je vjerojatnost da će se dogoditi <b>točno ${k}</b>?`,ans:pp(l,k),tol:.0011,dec:4,hint:'Poisson: P(x) = e⁻λ·λˣ / x!',steps:`<p>${f(k)}</p>`}}
+  const k=ri(2,4),k2=k+1,a=pp(l,k)+pp(l,k2);
+  return{text:`${intro} Kolika je vjerojatnost da će se dogoditi <b>${k} ili ${k2}</b>?`,ans:a,tol:.0011,dec:4,hint:'"Ili" za međusobno isključive ishode = zbrajanje.',steps:`<p>${f(k)}</p><p>${f(k2)}</p><p><code>${fmt(pp(l,k))} + ${fmt(pp(l,k2))} = ${fmt(a)}</code></p>`}
+}
+function gHyper(){
+  const N=ri(10,20),r=ri(3,Math.floor(N/2)),n=ri(3,5),x=ri(0,Math.min(2,r,n));
+  const ans=comb(r,x)*comb(N-r,n-x)/comb(N,n);
+  return{text:`U kutiji je ${N} žarulja, od kojih je ${r} neispravnih. Nasumce se izvlači ${n} žarulja <b>bez vraćanja</b>. Kolika je vjerojatnost da će među njima biti <b>točno ${x}</b> neispravnih?`,ans,tol:.0011,dec:4,
+   hint:'Hipergeometrijska: P(x) = C(r,x)·C(N−r,n−x) / C(N,n). Excel: =HYPGEOM.DIST(x;n;r;N;FALSE)',
+   steps:`<p>N=${N}, r=${r}, n=${n}, x=${x}</p><p><code>P = C(${r},${x})·C(${N-r},${n-x}) / C(${N},${n}) = ${comb(r,x)}·${comb(N-r,n-x)} / ${comb(N,n)} = ${fmt(ans)}</code></p>`}
+}
+const NC=[{mu:100,sd:20,c:'rezultat testa'},{mu:4500,sd:800,c:'mjesečna plaća u kn'},{mu:35000,sd:4000,c:'životni vijek gume u km'},{mu:28,sd:4,c:'broj skupljenih boca mjesečno'},{mu:50,sd:8,c:'vrijeme dostave u minutama'}];
+function gNorm(){
+  const c=pick(NC),zs=[-2,-1.75,-1.5,-1.25,-1,-.75,-.5,-.25,.25,.5,.75,1,1.25,1.5,1.75,2];
+  const intro=`Slučajna varijabla X (${c.c}) normalno je distribuirana s μ = ${c.mu} i σ = ${c.sd}.`;
+  const v=ri(0,2);
+  const zline=(x)=>{const z=(x-c.mu)/c.sd;return `<code>z(${x}) = (${x} − ${c.mu}) / ${c.sd} = ${sg(z)}</code>`};
+  if(v===0){const z=pick(zs),x=c.mu+z*c.sd,a=phi4(z);
+    return{text:`${intro} Odredite P(X &lt; ${x}).`,ans:a,tol:.003,dec:4,hint:'Standardiziraj: z = (x − μ)/σ, pa iz tablice P(0<Z<z). P(Z<z) = 0,5 ± tablična vrijednost.',
+     steps:`<p>${zline(x)}</p><p>${z>=0?`<code>P(Z &lt; ${sg(z)}) = 0,5 + ${fmt(tab(z))} = ${fmt(a)}</code>`:`<code>P(Z &lt; ${sg(z)}) = 0,5 − ${fmt(tab(z))} = ${fmt(a)}</code>`}</p>`}}
+  if(v===1){const z=pick(zs),x=c.mu+z*c.sd,a=1-phi4(z);
+    return{text:`${intro} Koliki je udio vrijednosti <b>većih od ${x}</b>, tj. P(X &gt; ${x})?`,ans:a,tol:.003,dec:4,hint:'P(X>x) = 1 − P(X<x). Vrijednosti iznad sredine: 0,5 − tablična vrijednost.',
+     steps:`<p>${zline(x)}</p><p><code>P(Z &lt; ${sg(z)}) = ${fmt(phi4(z))}</code>, pa <code>P(Z &gt; ${sg(z)}) = 1 − ${fmt(phi4(z))} = ${fmt(a)}</code></p>`}}
+  const z1=pick(zs.slice(0,-1)),z2=pick(zs.filter(z=>z>z1));
+  const x1=c.mu+z1*c.sd,x2=c.mu+z2*c.sd,a=phi4(z2)-phi4(z1);
+  return{text:`${intro} Odredite P(${x1} &lt; X &lt; ${x2}).`,ans:a,tol:.003,dec:4,hint:'P(a<X<b) = P(Z<z₂) − P(Z<z₁). Crtaj zvonolik graf i označi površinu.',
+   steps:`<p>${zline(x1)}</p><p>${zline(x2)}</p><p><code>P(${sg(z1)} &lt; Z &lt; ${sg(z2)}) = ${fmt(phi4(z2))} − ${fmt(phi4(z1))} = ${fmt(a)}</code></p>`}
+}
+function gUnif(){
+  const a=ri(0,40),w=pick([4,6,10,12,20,30]),b=a+w,v=ri(0,3);
+  const intro=`Vrijeme čekanja X (u minutama) uniformno je distribuirano između ${a} i ${b}.`;
+  if(v===0){const t=a+ri(1,w-1),ans=(b-t)/w;return{text:`${intro} Kolika je vjerojatnost da će čekanje trajati <b>više od ${t}</b> minuta?`,ans,tol:.0015,dec:4,hint:'Uniformna: P(X>t) = (b − t)/(b − a).',steps:`<p><code>P(X &gt; ${t}) = (${b} − ${t}) / (${b} − ${a}) = ${b-t}/${w} = ${fmt(ans)}</code></p>`}}
+  if(v===1){const c=a+ri(1,Math.floor(w/2)),d=c+ri(1,w-(c-a)-1||1),ans=(d-c)/w;return{text:`${intro} Kolika je vjerojatnost da će čekanje biti između ${c} i ${d} minuta?`,ans,tol:.0015,dec:4,hint:'P(c<X<d) = (d − c)/(b − a).',steps:`<p><code>P = (${d} − ${c}) / ${w} = ${fmt(ans)}</code></p>`}}
+  if(v===2){const ans=(a+b)/2;return{text:`${intro} Odredite <b>sredinu</b> (očekivano vrijeme čekanja).`,ans,tol:.011,dec:2,hint:'μ = (a + b)/2',steps:`<p><code>μ = (${a} + ${b})/2 = ${fmt(ans,2)}</code></p>`}}
+  const ans=w/Math.sqrt(12);return{text:`${intro} Odredite <b>standardnu devijaciju</b> (3 decimale).`,ans,tol:.01,dec:3,hint:'σ = (b − a)/√12',steps:`<p><code>σ = (${b} − ${a}) / √12 = ${w}/3,4641 = ${fmt(ans,3)}</code></p>`}
+}
+function gExpo(){
+  const m=pick([2,3,4,5,10,15,20]),t=pick([m/2,m,1.5*m,2*m,2.5*m]),lam=1/m,v=ri(0,1);
+  const ts=String(t).replace('.',',');
+  const intro=`Vrijeme opsluživanja (u minutama) slijedi eksponencijalnu distribuciju sa sredinom od ${m} minuta.`;
+  const st=`<p><code>λ = 1/${m} = ${fmt(lam)}</code></p>`;
+  if(v===0){const ans=1-Math.exp(-lam*t);return{text:`${intro} Kolika je vjerojatnost da opsluživanje <b>neće trajati dulje od ${ts}</b> minuta?`,ans,tol:.0011,dec:4,hint:'Eksponencijalna: λ = 1/sredina; P(X<t) = 1 − e^(−λt). Excel: =EXPON.DIST(t;λ;TRUE)',steps:st+`<p><code>P(X &lt; ${ts}) = 1 − e<sup>−${fmt(lam)}·${ts}</sup> = ${fmt(ans)}</code></p>`}}
+  const ans=Math.exp(-lam*t);return{text:`${intro} Kolika je vjerojatnost da će opsluživanje trajati <b>dulje od ${ts}</b> minuta?`,ans,tol:.0011,dec:4,hint:'P(X>t) = e^(−λt)',steps:st+`<p><code>P(X &gt; ${ts}) = e<sup>−${fmt(lam)}·${ts}</sup> = ${fmt(ans)}</code></p>`}
+}
+function gPort(){
+  const sx=pick([3,4,5,10]),sy=pick([4,5,6,10]),a=ri(2,10),b=ri(2,10),mx=ri(10,50),my=ri(10,50),rho=pick([-.6,-.3,.3,.5,.6]);
+  const mW=a*mx+b*my,vW=a*a*sx*sx+b*b*sy*sy+2*a*b*rho*sx*sy,sW=Math.sqrt(vW);
+  const intro=`Portfelj čini ${a} udjela dionice X (sredina ${mx}, varijanca ${sx*sx}) i ${b} udjela dionice Y (sredina ${my}, varijanca ${sy*sy}). Korelacija cijena iznosi ${String(rho).replace('.',',')}. Model portfelja: W = ${a}X + ${b}Y.`;
+  const sm=`<p><code>μ<sub>W</sub> = ${a}·${mx} + ${b}·${my} = ${mW}</code></p>`;
+  const sv=`<p><code>σ²<sub>W</sub> = ${a}²·${sx*sx} + ${b}²·${sy*sy} + 2·${a}·${b}·(${String(rho).replace('.',',')})·${sx}·${sy} = ${fmt(vW,2)}</code></p>`;
+  const v=ri(0,2);
+  if(v===0)return{text:`${intro} Izračunajte <b>sredinu</b> portfelja.`,ans:mW,tol:Math.max(.01,Math.abs(mW)*.002),dec:2,hint:'μ_W = a·μ_X + b·μ_Y',steps:sm};
+  if(v===1)return{text:`${intro} Izračunajte <b>varijancu</b> portfelja.`,ans:vW,tol:Math.max(.01,Math.abs(vW)*.002),dec:2,hint:'σ²_W = a²σ²_X + b²σ²_Y + 2ab·Corr·σ_X·σ_Y (pazi: σ, a ne σ², u zadnjem članu).',steps:sv};
+  const c=Math.round(mW+pick([-.5,-.25,.25,.5,1])*sW),z=Math.round((c-mW)/sW*100)/100,a2=phi4(z);
+  return{text:`${intro} Uz pretpostavku normalne distribucije, kolika je vjerojatnost da će vrijednost portfelja biti <b>manja od ${c}</b>? (z zaokruži na 2 decimale)`,ans:a2,tol:.004,dec:4,hint:'Prvo μ_W i σ_W = √σ²_W, zatim z = (c − μ_W)/σ_W i tablica.',
+   steps:sm+sv+`<p><code>σ<sub>W</sub> = √${fmt(vW,2)} = ${fmt(sW,2)}</code></p><p><code>z = (${c} − ${mW}) / ${fmt(sW,2)} = ${sg(z)}</code></p><p><code>P(Z &lt; ${sg(z)}) = ${fmt(a2)}</code></p>`};
+}
+const TOPICS=[
+ {id:'vjer',blk:'Vježbe 2',t:'Osnove vjerojatnosti',d:'Venn, tablice, stablo, uvjetna vjerojatnost',gens:[gVenn,gTable,gTree]},
+ {id:'disk',blk:'Vježbe 3',t:'Diskretne distribucije',d:'Očekivana vrijednost, P(X ≥ k)',gens:[gDisc]},
+ {id:'binom',blk:'Vježbe 4',t:'Binomna distribucija',d:'n pokušaja, stalni p',gens:[gBinom]},
+ {id:'pois',blk:'Vježbe 4',t:'Poissonova distribucija',d:'Prosječan broj događaja λ',gens:[gPois]},
+ {id:'hiper',blk:'Vježbe 4',t:'Hipergeometrijska',d:'Izvlačenje bez vraćanja',gens:[gHyper]},
+ {id:'norm',blk:'Vježbe 4a',t:'Normalna distribucija',d:'z-vrijednost i tablica',gens:[gNorm]},
+ {id:'unif',blk:'Vježbe 4a',t:'Uniformna distribucija',d:'P, sredina, standardna devijacija',gens:[gUnif]},
+ {id:'expo',blk:'Vježbe 4a',t:'Eksponencijalna distribucija',d:'Vrijeme čekanja, λ = 1/sredina',gens:[gExpo]},
+ {id:'port',blk:'Vježbe 5',t:'Portfelj / linearna kombinacija',d:'μ_W, σ²_W, korelacija',gens:[gPort]}
+];
+const SCEN=[
+ ['Od 20 nasumično odabranih vozača, svaki je s vjerojatnošću 5% žena. Kolika je vjerojatnost da su točno 3 žene?','binom','Fiksan broj pokušaja n, dva ishoda, stalna vjerojatnost p.'],
+ ['Svaki od 16 prodanih mobitela ima 20% šanse da bude prijavljen na popravak. Kolika je vjerojatnost da ih je barem jedan prijavljen?','binom','n=16 neovisnih pokušaja, uspjeh/neuspjeh, p=0,2.'],
+ ['40% top managera nosi punjač. U uzorku od 10 managera, vjerojatnost da ih četiri nose punjač?','binom','Uzorak od n=10, p=0,4, brojimo "uspjehe".'],
+ ['Na križanju se u prosjeku događa 1,5 nezgoda godišnje. Vjerojatnost da ih neće biti?','pois','Zadan je prosjek događaja u vremenu, bez gornje granice n.'],
+ ['Tjedna prodaja artikla slijedi distribuciju s parametrom 4. Vjerojatnost da se proda 4 ili 5 komada?','pois','Parametar λ = prosječan broj događaja u razdoblju.'],
+ ['Call centar u prosjeku prima 3 poziva u minuti. Vjerojatnost da u minuti stignu točno 2 poziva?','pois','Prosječna stopa događaja u vremenu: Poisson.'],
+ ['U bombonjeri je 16 čokoladica, 4 su s kokosom. Uzimate 4. Vjerojatnost da nijedna nije s kokosom?','hiper','Konačna skupina i izvlačenje bez vraćanja (p se mijenja).'],
+ ['U kutiji je 10 žarulja, 4 neispravne. Izvlačite 3 bez vraćanja. Vjerojatnost da su sve tri ispravne?','hiper','Poznati N, r i n, izvlačenje bez vraćanja.'],
+ ['Iz skupine od 12 zaposlenika (5 žena) bira se odbor od 4 osobe. Vjerojatnost da su točno 2 žene?','hiper','Uzorak iz male konačne populacije bez vraćanja.'],
+ ['Plaće su normalno distribuirane, sredina 4500 kn, σ = 1500. Koliki postotak ima plaću nižu od 6000?','norm','Spominje se normalna distribucija i μ, σ: standardiziraj z.'],
+ ['Životni vijek guma: sredina 35 000 km, σ = 4 000 km. Koji udio ima vijek kraći od 32 000 km?','norm','Normalna distribucija, traži se udio ispod granice.'],
+ ['Čekanje na zeleno svjetlo je jednako vjerojatno bilo gdje između 0 i 2 minute. P(više od 30 sekundi)?','unif','"Jednako vjerojatno" na intervalu [a, b] = uniformna.'],
+ ['Dob izvršnih direktora uniformno je distribuirana između 35 i 65 godina. P(između 40 i 50)?','unif','Izričito "uniformno" na intervalu.'],
+ ['Vrijeme opsluživanja u knjižnici ima sredinu 5 minuta. Vjerojatnost da neće trajati dulje od 10 minuta?','expo','Vrijeme do događaja / trajanje usluge s poznatom sredinom: λ = 1/5.'],
+ ['Vrijeme prikupljanja informacija o pacijentu ima sredinu 15 minuta. P(više od 18 minuta)?','expo','Vrijeme čekanja, P(X>t) = e^(−λt).']
+];
+const TYPES=[['binom','Binomna'],['pois','Poissonova'],['hiper','Hipergeometrijska'],['norm','Normalna'],['unif','Uniformna'],['expo','Eksponencijalna']];
+const FORM=[
+ ['Vježbe 2 · Vjerojatnost',[
+  'P(A ∪ B) = P(A) + P(B) − P(A ∩ B)','P(ni A ni B) = 1 − P(A ∪ B)','P(A | B) = P(A ∩ B) / P(B)','Stablo: P(B) = ΣP(Aᵢ)·P(B | Aᵢ); Bayes: P(A | B) = P(A ∩ B) / P(B)']],
+ ['Vježbe 3 · Diskretne distribucije',[
+  'Distribucija vjerojatnosti: svi pᵢ ≥ 0 i Σpᵢ = 1','E(X) = μ = Σ xᵢ·pᵢ','P(X > a) = zbroj pᵢ za x > a (pazi na < i ≤)']],
+ ['Vježbe 4 · Binomna, Poisson, Hipergeometrijska',[
+  'Binomna: P(x) = C(n,x)·pˣ·qⁿ⁻ˣ; μ = np; σ² = npq','Barem jedan: P(x ≥ 1) = 1 − P(0)','Poisson: P(x) = e⁻λ·λˣ / x!','Hipergeometrijska: P(x) = C(r,x)·C(N−r, n−x) / C(N,n)','C(n,k) = n! / (k!·(n−k)!)']],
+ ['Vježbe 4a · Neprekidne distribucije',[
+  'Normalna: z = (x − μ)/σ; P(Z<z) = 0,5 ± P(0<Z<|z|)','P(a<X<b) = P(Z<z₂) − P(Z<z₁)','Aproksimacija binomne normalnom ako npq > 9: μ = np, σ = √(npq)','Uniformna na [a,b]: P(X>t) = (b−t)/(b−a); μ = (a+b)/2; σ = (b−a)/√12','Eksponencijalna: λ = 1/sredina; P(X<t) = 1 − e^(−λt); P(X>t) = e^(−λt)']],
+ ['Vježbe 5 · Linearna kombinacija W = aX + bY',[
+  'μ_W = a·μ_X + b·μ_Y','σ²_W = a²σ²_X + b²σ²_Y + 2ab·Corr(X,Y)·σ_X·σ_Y','σ_X = √varijanca; manja varijanca portfelja = manji rizik','Zatim P(W < c): z = (c − μ_W)/σ_W']]
+];
+
+
+const LESSONS=[
+{id:'vjer',n:1,t:'Osnove vjerojatnosti',blk:'Vježbe 2',
+ intro:'Vjerojatnost je broj između 0 i 1: <code>P = povoljni ishodi / svi ishodi</code>. Većina zadataka iz ovog bloka svodi se na tri alata: <b>Vennov dijagram</b>, <b>tablicu</b> i <b>stablo</b>.',
+ kad:['U zadatku piše "ili", "i", "ni jedno", "barem", "ako je poznato da…"','Zadani su brojevi ljudi/predmeta u skupinama, ili postoci s više "grana"'],
+ formule:['P(A ∪ B) = P(A) + P(B) − P(A ∩ B)   (A <b>ili</b> B)','P(ni A ni B) = 1 − P(A ∪ B)','P(A | B) = P(A ∩ B) / P(B)   (uvjetna: "ako je poznato da B")','Stablo: P(B) = zbroj grana koje završavaju s B'],
+ koraci:['Prepoznaj što je zadano: ukupno N, skupine A i B, presjek.','Odaberi alat: Venn (dvije skupine), tablica (dvije osobine), stablo (postoci po fazama).','Izračunaj najprije <b>brojeve</b> (ili grane), tek na kraju podijeli.','Provjeri: rezultat je između 0 i 1.'],
+ ex:[
+ {t:'Venn: nijedan sport',z:'Od 200 studenata, 58 igra nogomet, 40 košarku, a 8 oba sporta. Kolika je vjerojatnost da se student ne bavi ni jednim sportom?',
+  s:['Zadano: N = 200, A = 58, B = 40, A ∩ B = 8.','Koliko se bavi barem jednim: <code>58 + 40 − 8 = 90</code>. Oduzimamo 8 jer su oni koji igraju oba sporta već brojani dvaput.','Nijedan sport: <code>200 − 90 = 110</code>.','Vjerojatnost: <code>110/200 = 0,55</code>.'],r:'P = 0,55'},
+ {t:'Stablo: ozljede na radu',z:'60% radnika je u proizvodnji, 40% u montaži. Ozlijeđeno je 35% radnika u proizvodnji i 20% u montaži. a) Koliki je postotak ozlijeđenih? b) Ako je radnik ozlijeđen, kolika je vjerojatnost da radi u montaži?',
+  s:['Grane do "ozlijeđen": proizvodnja <code>0,60 · 0,35 = 0,21</code>, montaža <code>0,40 · 0,20 = 0,08</code>.','a) Zbroji grane: <code>0,21 + 0,08 = 0,29</code>, tj. 29%.','b) Uvjetna vjerojatnost: <code>P(Mont | Ozlj) = 0,08 / 0,29 = 0,2759</code>.'],r:'a) 29%   b) 0,2759'}],
+ greske:['Zaboraviš oduzeti presjek kod "ili" (brojiš ih dvaput).','Miješaš P(A|B) i P(B|A): nazivnik je uvijek ono što je <b>poznato</b> (iza crte).','Kod tablice za uvjetnu vjerojatnost nazivnik je zbroj retka/stupca uvjeta, ne ukupno.']},
+{id:'disk',n:2,t:'Diskretne distribucije i očekivana vrijednost',blk:'Vježbe 3',
+ intro:'Diskretna slučajna varijabla ima konačno mnogo vrijednosti x, svaka s vjerojatnošću p. Očekivana vrijednost je "prosjek koji bi dobio u dugom nizu ponavljanja".',
+ kad:['Zadana je tablica vrijednosti x i vjerojatnosti P(x)','Pita se "očekivani broj…" ili P(X > a), P(a ≤ X < b)'],
+ formule:['Uvjeti distribucije: svaki pᵢ ≥ 0 i <b>Σpᵢ = 1</b>','E(X) = μ = Σ xᵢ · pᵢ'],
+ koraci:['Ako pitaju je li nešto distribucija: zbroji p (mora biti 1) i provjeri da nema negativnih p.','Za E(X): u tablicu dodaj stupac x·p i zbroji ga.','Za P(…): zbroji p-ove za samo one x koji zadovoljavaju uvjet (pazi na < i ≤).'],
+ ex:[{t:'Prodaja računala',z:'Broj prodanih računala dnevno: x = 0…6, P(x) = 0,05; 0,10; 0,20; 0,20; 0,20; 0,15; 0,10. Odredi E(X) i P(3 ≤ X < 6).',
+  s:['Provjera: <code>0,05+0,10+0,20+0,20+0,20+0,15+0,10 = 1</code>, dakle je distribucija.','E(X): <code>0·0,05 + 1·0,10 + 2·0,20 + 3·0,20 + 4·0,20 + 5·0,15 + 6·0,10 = 3,25</code>.','P(3 ≤ X < 6): uključuje x = 3, 4, 5 (6 ne ulazi): <code>0,20 + 0,20 + 0,15 = 0,55</code>.'],r:'E(X) = 3,25   P = 0,55'}],
+ greske:['Ne provjeriš zbroj: u vježbama je jedna distribucija imala Σp = 0,99, a druga negativan p.','Pomiješaš < i ≤ (uključuješ ili izostaviš krajnju vrijednost).']},
+{id:'binom',n:3,t:'Binomna distribucija',blk:'Vježbe 4',
+ intro:'Ponavljaš isti pokus <b>n puta</b>, svaki put ima samo dva ishoda (uspjeh / neuspjeh) s <b>istim p</b>, a pokusi su neovisni. Brojiš koliko je uspjeha.',
+ kad:['"Od 20 odabranih vozača, 5% su žene…"','Fiksan broj pokušaja n i postotak p'],
+ formule:['P(x) = C(n,x) · pˣ · qⁿ⁻ˣ,   q = 1 − p','C(n,x) = n! / (x! (n−x)!)','Barem jedan: P(x ≥ 1) = 1 − P(0)','μ = np,   σ² = npq'],
+ koraci:['Zapiši n, p, q i što je "uspjeh".','Odredi x: točno x, "barem", "više od", "manje od".','"Barem/više od": koristi komplement (1 minus ono što ne želiš).','Uvrsti u formulu i izračunaj.'],
+ ex:[{t:'Uber vozači',z:'5% Uberovih vozača su žene. Izabire se 20 vozača. a) Vjerojatnost da su točno tri žene? b) Da je barem jedna žena?',
+  s:['n = 20, p = 0,05, q = 0,95.','a) <code>P(3) = C(20,3) · 0,05³ · 0,95¹⁷ = 1140 · 0,000125 · 0,41857 = 0,0596</code>.','b) "Barem jedna" = suprotno od "nijedna": <code>P(0) = 0,95²⁰ = 0,3585</code>.','<code>P(x ≥ 1) = 1 − 0,3585 = 0,6415</code>.'],r:'a) 0,0596   b) 0,6415'}],
+ greske:['Zaboraviš kombinacije C(n,x).','Zamijeniš p i q.','"Više od 2" znači x ≥ 3, pa je komplement 1 − (P0 + P1 + P2), a ne 1 − P(2).']},
+{id:'pois',n:4,t:'Poissonova distribucija',blk:'Vježbe 4',
+ intro:'Brojiš rijetke događaje u vremenu ili prostoru kad znaš <b>prosječan broj</b> (λ), a nema gornje granice n.',
+ kad:['"U prosjeku 1,5 nezgoda godišnje"','"Tjedna prodaja ravna se po Poissonu s parametrom 4"'],
+ formule:['P(x) = e⁻λ · λˣ / x!','"Ili" za različite x: zbroji P(x)','Ako se razdoblje promijeni, λ skaliraj (2 godine → λ = 2·1,5 = 3)'],
+ koraci:['Pronađi λ i provjeri da vrijedi za razdoblje iz pitanja.','Odredi traženi x (ili više njih).','Uvrsti u formulu (kalkulator: tipka eˣ).','Za "4 ili 5" zbroji P(4) + P(5).'],
+ ex:[{t:'Nezgode na križanju',z:'Na križanju se u prosjeku događa 1,5 nezgoda godišnje. Kolika je vjerojatnost da ih ove godine a) neće biti, b) bude točno jedna, c) bude dvije?',
+  s:['λ = 1,5.','a) <code>P(0) = e⁻¹·⁵ · 1,5⁰ / 0! = 0,2231</code>','b) <code>P(1) = e⁻¹·⁵ · 1,5¹ / 1! = 0,3347</code>','c) <code>P(2) = e⁻¹·⁵ · 1,5² / 2! = 0,2510</code>'],r:'a) 0,2231   b) 0,3347   c) 0,2510'}],
+ greske:['Koristiš λ za pogrešno razdoblje.','Zaboraviš 0! = 1 i x⁰ = 1.','Misliš da je P(0) = 0.']},
+{id:'hiper',n:5,t:'Hipergeometrijska distribucija',blk:'Vježbe 4',
+ intro:'Kao binomna, ali izvlačiš <b>bez vraćanja</b> iz male, konačne skupine, pa se vjerojatnost mijenja nakon svakog izvlačenja.',
+ kad:['Zadan je ukupan broj N i broj "posebnih" r u skupini','"Izvlačimo bez vraćanja" / "uzimamo iz kutije"'],
+ formule:['P(x) = C(r,x) · C(N−r, n−x) / C(N,n)','Excel: =HYPGEOM.DIST(x; n; r; N; FALSE)'],
+ koraci:['Zapiši N (ukupno), r (posebnih), n (koliko izvlačiš), x (koliko posebnih tražiš).','Brojnik: načini da odabereš x posebnih i n−x običnih.','Nazivnik: svi načini da odabereš n iz N.','Podijeli.'],
+ ex:[{t:'Bombonjera',z:'U bombonjeri je 16 čokoladica, 4 su s kokosom. Uzmeš 4. Kolika je vjerojatnost da nijedna nije s kokosom?',
+  s:['N = 16, r = 4, n = 4, x = 0.','Brojnik: <code>C(4,0) · C(12,4) = 1 · 495 = 495</code>.','Nazivnik: <code>C(16,4) = 1820</code>.','<code>P = 495 / 1820 = 0,272</code>.'],r:'P = 0,272'}],
+ greske:['Upotrijebiš binomnu iako je bez vraćanja.','Pomiješaš r i N−r.','Krivi redoslijed argumenata u Excelu (x; n; r; N).']},
+{id:'norm',n:6,t:'Normalna distribucija',blk:'Vježbe 4a',
+ intro:'Zvonolika krivulja određena sredinom μ i standardnom devijacijom σ. Sve zadatke rješavaš istim putem: <b>standardiziraj, pa z-tablica</b>. Površina ispod krivulje = vjerojatnost.',
+ kad:['"Normalno distribuirano" uz μ i σ (ili varijancu)','Pita se postotak/udio iznad, ispod ili između granica'],
+ formule:['z = (x − μ) / σ   (σ = √varijanca!)','P(Z < z) = 0,5 + T(z) za z ≥ 0;  0,5 − T(|z|) za z &lt; 0','P(Z > z) = 1 − P(Z < z)','P(a < X < b) = P(Z < z₂) − P(Z < z₁)','Binomna → normalna ako npq > 9: μ = np, σ = √(npq)'],
+ koraci:['Skiciraj zvono i zasjenčaj traženo područje.','Izračunaj z za svaku granicu (podijeli sa σ, ne sa σ²).','Iz tablice očitaj T(z) = P(0 < Z < |z|).','Kombiniraj: ispod → 0,5 ± T; iznad → 0,5 ∓ T; između na istoj strani → razlika, na različitim → zbroj.'],
+ ex:[{t:'Zimske gume',z:'Životni vijek guma je normalan, μ = 35 000 km, σ = 4 000 km. Koliki je udio guma s vijekom kraćim od 32 000 km?',
+  s:['z = <code>(32 000 − 35 000) / 4 000 = −0,75</code>.','Iz tablice: <code>T(0,75) = 0,2734</code>.','z je negativan, pa je ispod sredine: <code>P = 0,5 − 0,2734 = 0,2266</code>.'],r:'P = 0,2266 (22,66%)'},
+  {t:'Plastične boce',z:'Kućanstva sakupe u prosjeku 28 boca mjesečno, σ = 2. Vjerojatnost da sakupe između 27 i 31 boce?',
+  s:['<code>z(27) = (27 − 28)/2 = −0,5</code>, <code>z(31) = (31 − 28)/2 = 1,5</code>.','Granice su na različitim stranama sredine, pa zbrajamo: <code>T(0,5) + T(1,5) = 0,1915 + 0,4332</code>.','<code>P = 0,6247</code>.'],r:'P = 0,6247'}],
+ greske:['Dijeliš sa σ² umjesto sa σ (plaće s "varijancom 1500²" znače σ = 1500).','Krivi predznak: ispod sredine dolazi 0,5 − T, ne 0,5 + T.','Vjerojatnost točno jedne vrijednosti kod neprekidne distribucije je 0.']},
+{id:'unif',n:7,t:'Uniformna distribucija',blk:'Vježbe 4a',
+ intro:'Sve vrijednosti između a i b jednako su vjerojatne: gustoća je ravna linija, pa je vjerojatnost samo <b>omjer duljina</b>.',
+ kad:['"Jednako vjerojatno između…", "uniformno distribuirano na intervalu"'],
+ formule:['P(c < X < d) = (d − c) / (b − a)','P(X > t) = (b − t) / (b − a)','μ = (a + b) / 2','σ = (b − a) / √12'],
+ koraci:['Zapiši a i b i pretvori sve u iste jedinice.','Vjerojatnost = duljina traženog dijela / (b − a).','Za sredinu i σ upotrijebi formule.'],
+ ex:[{t:'Zeleno svjetlo',z:'Čekanje na zeleno je uniformno između 0 i 2 minute. a) P(čekanje &gt; 30 s)? b) Standardna devijacija?',
+  s:['Jedinice: 30 s = 0,5 min, a = 0, b = 2.','a) <code>P(X &gt; 0,5) = (2 − 0,5) / 2 = 0,75</code>.','b) <code>σ = (2 − 0) / √12 = 2 / 3,4641 = 0,577</code>.'],r:'a) 0,75   b) 0,577 min'}],
+ greske:['Miješaš minute i sekunde.','Zaboraviš √12 u σ.']},
+{id:'expo',n:8,t:'Eksponencijalna distribucija',blk:'Vježbe 4a',
+ intro:'Modelira <b>vrijeme čekanja ili trajanje</b> (usluge, kvara, dolaska) kad je poznata prosječna vrijednost. Vrlo kratka trajanja su najčešća.',
+ kad:['"Vrijeme opsluživanja ima sredinu 5 minuta"','Traži se P(vrijeme < t) ili P(vrijeme > t)'],
+ formule:['λ = 1 / sredina','P(X < t) = 1 − e^(−λt)','P(X > t) = e^(−λt)','Excel: =EXPON.DIST(t; λ; TRUE)'],
+ koraci:['Izračunaj λ = 1 / sredina.','Odluči: "neće trajati dulje od t" znači P(X < t); "dulje od t" znači P(X > t).','Uvrsti u pravu formulu.'],
+ ex:[{t:'Knjižnica',z:'Vrijeme opsluživanja je eksponencijalno sa sredinom od 5 minuta. Vjerojatnost da neće trajati dulje od 10 minuta?',
+  s:['<code>λ = 1/5 = 0,2</code>.','"Neće trajati dulje od 10" = P(X &lt; 10).','<code>P = 1 − e^(−0,2·10) = 1 − e⁻² = 1 − 0,1353 = 0,8647</code>.'],r:'P = 0,8647 (86,47%)'},
+  {t:'Ambulanta',z:'Sredina prikupljanja informacija je 15 minuta. P(više od 18 minuta)?',
+  s:['<code>λ = 1/15</code>.','<code>P(X &gt; 18) = e^(−18/15) = e⁻¹·² = 0,3012</code>.'],r:'P = 0,3012'}],
+ greske:['Staviš λ = sredina umjesto λ = 1/sredina.','Zamijeniš P(X < t) i P(X > t) (zbroj im je 1).']},
+{id:'port',n:9,t:'Portfelj i linearna kombinacija',blk:'Vježbe 5',
+ intro:'Portfelj je novi izraz <code>W = aX + bY</code>. Sredina se računa jednostavno, a varijanca ovisi i o <b>korelaciji</b>. Manja varijanca = manji rizik.',
+ kad:['"portfelj od a udjela dionice X i b udjela dionice Y"','Zadana korelacija između X i Y'],
+ formule:['μ_W = a·μ_X + b·μ_Y','σ²_W = a²σ²_X + b²σ²_Y + 2ab·Corr(X,Y)·σ_X·σ_Y','σ_W = √σ²_W','P(W < c): z = (c − μ_W) / σ_W'],
+ koraci:['Zapiši model W = aX + bY i sve zadane vrijednosti (σ = √varijanca).','Izračunaj μ_W.','Izračunaj σ²_W: tri člana, u zadnjem koristi σ_X · σ_Y.','Ako treba vjerojatnost: σ_W, z, tablica.'],
+ ex:[{t:'Johnson Fund',z:'Portfelj: 10 udjela A (μ = 10, σ² = 16) i 8 udjela B (μ = 12, σ² = 9), korelacija 0,3. Izračunaj sredinu i varijancu te P(W &lt; 200).',
+  s:['W = 10A + 8B, σ_A = 4, σ_B = 3.','Sredina: <code>10·10 + 8·12 = 196</code>.','Varijanca: <code>10²·16 + 8²·9 + 2·10·8·0,3·4·3 = 1600 + 576 + 576 = 2752</code>.','<code>σ_W = √2752 = 52,46</code>.','<code>z = (200 − 196) / 52,46 = 0,08</code>, <code>P = 0,5 + 0,0319 = 0,5319</code>.'],r:'μ = 196   σ² = 2752   P = 0,5319'}],
+ greske:['U zadnjem članu koristiš varijance umjesto σ_X · σ_Y.','Zaboraviš kvadrirati a i b u prva dva člana.','Za usporedbu rizika gledaj varijancu: manja je bolja.']}
+];
+
+/* ---------- state & render ---------- */
+const S={tab:'home',lesson:null,rev:{},topic:null,q:null,done:false,sim:null,rec:null,recDone:null,confirmReset:false,zmode:'half'};
+const TABS=[['home','Početna'],['uci','Uči'],['praksa','Praksa'],['tip','Prepoznaj tip'],['formule','Formule'],['ztab','Z-tablica'],['napredak','Napredak']];
+function renderTabs(){$('#tabs').innerHTML=TABS.map(([k,l])=>`<button data-tab="${k}" class="${S.tab===k?'on':''}">${l}</button>`).join('')}
+function newQ(){const id=S.topic==='mix'?pick(TOPICS).id:S.topic;const T=TOPICS.find(t=>t.id===id);S.q={...pick(T.gens)(),tid:id,tt:T.t,blk:T.blk};S.done=false}
+function parse(v){let s=String(v).trim().replace(/\s/g,'').replace(',','.');let pct=false;if(s.endsWith('%')){pct=true;s=s.slice(0,-1)}let n=parseFloat(s);if(isNaN(n))return NaN;return pct?n/100:n}
+function vPraksa(){
+  if(S.sim&&S.sim.i>=S.sim.n){const s=S.sim,pc=Math.round(s.score/s.n*100);
+    return `<div class="eyebrow">Simulacija ispita</div><h1>Rezultat: ${s.score} / ${s.n}</h1><p class="lead">${pc}% točno. ${pc>=80?'Odlično, drži ritam.':pc>=50?'Solidno, ponovi teme u kojima si griješio/la.':'Vrati se na formule i vježbaj temu po temu.'}</p>
+    <table class="prog"><tr><th>#</th><th>Tema</th><th>Ishod</th></tr>${s.res.map((r,i)=>`<tr><td>${i+1}</td><td>${r.tt}</td><td>${r.ok?'✓ točno':'✗ netočno'}</td></tr>`).join('')}</table>
+    <div class="row" style="margin-top:16px"><button class="btn" data-act="sim">Nova simulacija</button><button class="btn ghost" data-act="menu">Natrag na teme</button><button class="btn ghost" data-tab="home">⌂ Početna</button></div>`}
+  if(!S.topic){
+    const st=stats();
+    return `<div class="eyebrow">Praksa</div><h1>Odaberi temu</h1><p class="lead">Svaki zadatak ima nove brojeve. Cilj: riješiti ga sam, pa tek onda pogledati postupak.</p>
+    <div class="row" style="margin-bottom:16px"><button class="btn" data-act="sim">Simulacija ispita (10 zadataka)</button><button class="btn ghost" data-topic="mix">Mješovito</button></div>
+    <div class="grid">${TOPICS.map(t=>{const s=st[t.id]||{ok:0,tot:0};const p=s.tot?Math.round(s.ok/s.tot*100):0;return `<button class="card" data-topic="${t.id}"><div class="blk">${t.blk}</div><div class="ct">${t.t}</div><div class="cd2">${t.d}</div><div class="bar"><i style="width:${p}%"></i></div><div class="mono" style="color:var(--mut);margin-top:6px">${s.tot?`${s.ok}/${s.tot} točno`:'još nisi vježbao'}</div></button>`}).join('')}</div>`}
+  const q=S.q;
+  const head=S.sim?`<div class="simbar mono"><span><a href="#" data-tab="home" style="color:inherit">⌂ Početna</a> &nbsp;·&nbsp; Simulacija · zadatak ${S.sim.i+1}/${S.sim.n}</span><span>Bodovi: ${S.sim.score}</span></div>`:`<div class="simbar mono"><span><a href="#" data-act="menu" style="color:inherit">← Sve teme</a> &nbsp;·&nbsp; <a href="#" data-tab="home" style="color:inherit">⌂ Početna</a></span><span>${S.topic==='mix'?'Mješovito':TOPICS.find(t=>t.id===S.topic).t}</span></div>`;
+  return `${head}<div class="card"><div class="eyebrow">${q.blk} · ${q.tt}</div><div class="q">${q.text}</div>
+   <div class="row"><input class="ans" id="ans" inputmode="decimal" autocomplete="off" placeholder="rezultat" ${S.done?'disabled':''}>
+   <button class="btn" data-act="check" ${S.done?'disabled style="opacity:.4"':''}>Provjeri</button>
+   <button class="btn ghost" data-act="hint">Hint</button>
+   ${S.done?'':'<button class="btn ghost" data-act="skip">Preskoči</button>'}</div>
+   <div id="hintbox"></div><div id="resbox">${S.resHtml||''}</div></div>`}
+function vTip(){
+  if(!S.rec)S.rec=pick(SCEN);const [t,id,why]=S.rec;
+  return `<div class="eyebrow">Prepoznaj tip</div><h1>Koja je to distribucija?</h1><p class="lead">Ne računaj, samo odaberi pravu distribuciju. To je prvi korak svakog zadatka.</p>
+  <div class="card"><div class="q">${t}</div><div class="opts">${TYPES.map(([k,l])=>`<button data-rec="${k}" ${S.recDone?'disabled':''} class="${S.recDone?(k===id?'right2':(k===S.recDone?'wrong':'')):''}">${l}</button>`).join('')}</div>
+  ${S.recDone?`<div class="res ${S.recDone===id?'ok':'no'}"><b>${S.recDone===id?'Točno.':'Netočno.'}</b> Ispravno: <b>${TYPES.find(x=>x[0]===id)[1]}</b>.<div class="steps"><p>${why}</p></div></div><div style="margin-top:14px"><button class="btn" data-act="nextrec">Sljedeće</button></div>`:''}</div>`}
+function vFormule(){return `<div class="eyebrow">Formule</div><h1>Sažetak formula</h1><p class="lead">Sve što ti treba iz pet blokova vježbi.</p><div class="fgrid">${FORM.map(([h,a])=>`<div class="card"><div class="blk" style="font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.12em;color:var(--acc);text-transform:uppercase">${h}</div>${a.map(x=>`<div><code>${x}</code></div>`).join('')}</div>`).join('')}</div>`}
+function vZtab(){
+  const half=S.zmode==='half';
+  const val=z=>half?tab(z):phi4(z);
+  let h='<tr><th>z</th>'+Array.from({length:10},(_,j)=>`<th>0,0${j}</th>`).join('')+'</tr>';
+  for(let i=0;i<40;i++){h+=`<tr><th>${(i/10).toFixed(1).replace('.',',')}</th>`+Array.from({length:10},(_,j)=>`<td>${val(i/10+j/100).toFixed(4).replace('.',',')}</td>`).join('')+'</tr>'}
+  return `<div class="eyebrow">Z-tablica</div><h1>Tablica normalne distribucije</h1>
+  <p class="lead">Standardna normalna razdioba N(0,1). Redak je z na jednu decimalu, stupac druga decimala (npr. z = 1,26 → redak 1,2 i stupac 0,06).</p>
+  <div class="row" style="margin-bottom:12px"><button class="btn ${half?'':'ghost'}" data-act="zmode" data-m="half">P(0 &lt; Z &lt; z)</button><button class="btn ${half?'ghost':''}" data-act="zmode" data-m="full">P(Z &lt; z)</button></div>
+  <div class="res" style="margin-bottom:14px"><b>Brza provjera:</b> z = <input id="zin" inputmode="decimal" placeholder="npr. 1,26" style="width:110px;padding:6px 8px;border:1px solid var(--bd);background:var(--card);color:inherit;font:inherit"> <span id="zout" class="mono"></span></div>
+  <p style="color:var(--mut);font-size:14px;margin:0 0 12px">${half?'Vrijednost je površina između sredine (0) i z. Za P(Z &lt; z) pri z &gt; 0 dodaj 0,5, a za z &lt; 0 oduzmi vrijednost od 0,5.':'Vrijednost je P(Z &lt; z) za z ≥ 0. Za negativan z koristi P(Z &lt; −z) = 1 − P(Z &lt; z).'}</p>
+  <div style="overflow-x:auto"><table class="prog ztab">${h}</table></div>
+  <p style="color:var(--mut);font-size:14px;margin-top:12px">Za z ≥ 4 vrijednost je praktički ${half?'0,5000':'1,0000'}. Simetrija: P(Z &gt; z) = P(Z &lt; −z) = 1 − P(Z &lt; z).</p>
+  <div class="row" style="margin-top:14px"><button class="btn ghost" data-tab="home">⌂ Početna</button><button class="btn ghost" data-topic="norm">Vježbaj normalnu</button></div>`}
+function vNapredak(){const st=stats();let T=0,O=0;
+  const rows=TOPICS.map(t=>{const s=st[t.id]||{ok:0,tot:0};T+=s.tot;O+=s.ok;return `<tr><td>${t.blk}</td><td>${t.t}</td><td>${s.tot}</td><td>${s.ok}</td><td>${s.tot?Math.round(s.ok/s.tot*100)+'%':'–'}</td></tr>`}).join('');
+  const r=st.tip||{ok:0,tot:0};
+  return `<div class="eyebrow">Napredak</div><h1>Tvoji rezultati</h1><p class="lead">Ukupno: ${O} od ${T} točnih zadataka. Teme s niskim postotkom ponovi prve.</p>
+  <table class="prog"><tr><th>Blok</th><th>Tema</th><th>Pokušaja</th><th>Točno</th><th>%</th></tr>${rows}<tr><td></td><td>Prepoznaj tip</td><td>${r.tot}</td><td>${r.ok}</td><td>${r.tot?Math.round(r.ok/r.tot*100)+'%':'–'}</td></tr></table>
+  <div style="margin-top:16px"><button class="btn ghost" data-act="reset">${S.confirmReset?'Sigurno? Klikni za brisanje':'Obriši napredak'}</button></div>`}
+
+function vHome(){
+  const st=stats();let T=0,O=0,weak=null,wp=2;
+  TOPICS.forEach(t=>{const s=st[t.id]||{ok:0,tot:0};T+=s.tot;O+=s.ok;if(s.tot>=3&&s.ok/s.tot<wp){wp=s.ok/s.tot;weak=t}});
+  const d=Math.round((new Date(2026,11,15)-new Date().setHours(0,0,0,0))/864e5);
+  return `<div class="eyebrow">Početna</div><h1>Kvantitativne metode odlučivanja</h1>
+  <p class="lead">${d>0?`Do 15.12.2026. ima još ${d} dana. `:''}Preporučeni put: prvo <b>nauči</b> temu, zatim je <b>vježbaj</b>, na kraju napravi <b>simulaciju ispita</b>.</p>
+  <div class="hgrid">
+   <button class="card" data-tab="uci"><div class="num">1</div><div class="ct">Uči</div><div class="cd2">9 lekcija: objašnjenje, formule, postupak i riješeni primjeri korak po korak.</div></button>
+   <button class="card" data-tab="praksa"><div class="num">2</div><div class="ct">Vježbaj</div><div class="cd2">Novi zadaci s drugim brojevima po temama ili mješovito.</div></button>
+   <button class="card" data-tab="tip"><div class="num">3</div><div class="ct">Prepoznaj tip</div><div class="cd2">Uvježbaj odabir prave distribucije prije računanja.</div></button>
+   <button class="card" data-act="sim"><div class="num">4</div><div class="ct">Simulacija ispita</div><div class="cd2">10 miješanih zadataka i ocjena na kraju.</div></button>
+   <button class="card" data-tab="formule"><div class="num">∑</div><div class="ct">Formule</div><div class="cd2">Sve formule na jednom mjestu.</div></button>
+   <button class="card" data-tab="napredak"><div class="num">%</div><div class="ct">Napredak</div><div class="cd2">${T?`${O} od ${T} točnih zadataka.`:'Još nema rezultata.'}</div></button>
+  </div>
+  ${weak?`<div class="res" style="margin-top:20px"><b>Najslabija tema trenutno:</b> ${weak.t} (${Math.round(wp*100)}% točno). <div class="row" style="margin-top:10px"><button class="btn" data-lesson="${weak.id}">Ponovi lekciju</button><button class="btn ghost" data-topic="${weak.id}">Vježbaj</button></div></div>`:''}`}
+function vUci(){
+  if(!S.lesson)return `<div class="eyebrow">Uči</div><h1>Lekcije</h1><p class="lead">Idi redom 1 → 9. Svaka lekcija ima isti raspored: što je, kako prepoznati, formule, postupak, riješeni primjer, česte greške.</p>
+  <div class="grid">${LESSONS.map(l=>`<button class="card" data-lesson="${l.id}"><div class="blk">${l.n}. · ${l.blk}</div><div class="ct">${l.t}</div><div class="cd2">${l.ex.length} riješen${l.ex.length>1?'a':''} primjer${l.ex.length>1?'a':''}</div></button>`).join('')}</div>`;
+  const i=LESSONS.findIndex(l=>l.id===S.lesson),l=LESSONS[i];
+  const ex=l.ex.map((e,k)=>{const key=l.id+'-'+k,n=S.rev[key]||0,tot=e.s.length;
+    return `<div class="ex"><div class="eyebrow">Riješeni primjer · ${e.t}</div><div class="zad">${e.z}</div>
+    ${e.s.slice(0,n).map((s,j)=>`<div class="lstep"><div class="n">Korak ${j+1}</div>${s}</div>`).join('')}
+    ${n>=tot?`<div class="final">${e.r}</div>`:''}
+    <div class="row" style="margin-top:10px">${n<tot?`<button class="btn" data-act="rev" data-key="${key}">${n===0?'Pokaži prvi korak':'Sljedeći korak'}</button><button class="btn ghost" data-act="revall" data-key="${key}" data-n="${tot}">Prikaži sve</button>`:`<button class="btn ghost" data-act="revreset" data-key="${key}">Sakrij i pokušaj sam</button>`}</div>
+    ${n===0?'<p style="color:var(--mut);font-size:13px;margin:8px 0 0">Savjet: prije klika riješi zadatak sam na papiru, pa provjeri korak po korak.</p>':''}</div>`}).join('');
+  const prev=LESSONS[i-1],next=LESSONS[i+1];
+  return `<div class="row" style="margin-bottom:14px"><button class="btn ghost" data-tab="home">⌂ Početna</button><button class="btn ghost" data-lesson="">← Sve lekcije</button></div>
+  <div class="eyebrow">Lekcija ${l.n} od ${LESSONS.length} · ${l.blk}</div><h1>${l.t}</h1><p class="lead">${l.intro}</p>
+  <div class="card sec"><h3>Kako prepoznati</h3><ul>${l.kad.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+  <div class="card sec"><h3>Formule</h3>${l.formule.map(x=>`<div style="margin:6px 0"><code>${x}</code></div>`).join('')}</div>
+  <div class="card sec"><h3>Postupak po koracima</h3><ol>${l.koraci.map(x=>`<li>${x}</li>`).join('')}</ol></div>
+  <div class="sec"><h3>Primjeri iz tvojih vježbi</h3>${ex}</div>
+  <div class="card sec"><h3>Česte greške</h3>${l.greske.map(x=>`<div class="warn">${x}</div>`).join('')}</div>
+  <div class="row" style="margin-top:18px"><button class="btn" data-topic="${l.id}">Vježbaj ovu temu</button></div>
+  <div class="navl">${prev?`<button class="btn ghost" data-lesson="${prev.id}">← ${prev.n}. ${prev.t}</button>`:'<span></span>'}${next?`<button class="btn ghost" data-lesson="${next.id}">${next.n}. ${next.t} →</button>`:''}</div>`}
+document.addEventListener('input',e=>{if(e.target.id!=='zin')return;const z=parseFloat(e.target.value.replace(',','.')),o=document.getElementById('zout');if(isNaN(z)){o.textContent='';return}const f=x=>x.toFixed(4).replace('.',',');o.textContent='P(0<Z<'+Math.abs(z)+') = '+f(tab(z))+'  ·  P(Z<'+z+') = '+f(phi4(z))+'  ·  P(Z>'+z+') = '+f(1-phi4(z))});
+function render(){renderTabs();$('#view').innerHTML=({home:vHome,uci:vUci,praksa:vPraksa,tip:vTip,formule:vFormule,ztab:vZtab,napredak:vNapredak})[S.tab]();const a=$('#ans');if(a&&!S.done)a.focus()}
+function check(){
+  if(S.done)return;const el=$('#ans'),v=parse(el.value);
+  if(isNaN(v)){$('#resbox').innerHTML='<div class="res no">Upiši broj (zarez ili točka, može i postotak).</div>';return}
+  const q=S.q,ok=Math.abs(v-q.ans)<=q.tol;S.done=true;record(q.tid,ok);
+  if(S.sim){S.sim.res.push({tt:q.tt,ok});if(ok)S.sim.score++}
+  S.resHtml=`<div class="res ${ok?'ok':'no'}"><b>${ok?'Točno.':'Netočno.'}</b> Tvoj odgovor: <b class="v">${el.value.trim()}</b> · Točan rezultat: <b class="v">${fmt(q.ans,q.dec)}</b><div class="steps" style="margin-top:8px">${q.steps}</div></div><div class="row" style="margin-top:14px"><button class="btn" data-act="next">${S.sim&&S.sim.i+1>=S.sim.n?'Završi simulaciju':'Sljedeći zadatak'}</button></div>`;
+  render();
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-tab],[data-topic],[data-act],[data-rec],[data-lesson]');if(!t)return;
+  if(t.tagName==='A')e.preventDefault();
+  if(t.dataset.lesson!==undefined&&t.hasAttribute('data-lesson')){S.tab='uci';S.lesson=t.dataset.lesson||null;render();window.scrollTo(0,0);return}
+  if(t.dataset.tab){S.tab=t.dataset.tab;S.confirmReset=false;if(S.tab==='home'||S.tab==='uci'){S.sim=null}if(S.tab==='uci')S.lesson=null;if(S.tab==='praksa'&&S.sim&&S.sim.i>=S.sim.n){S.sim=null;S.topic=null}render();window.scrollTo(0,0);return}
+  if(t.dataset.topic){S.tab='praksa';S.topic=t.dataset.topic;S.sim=null;S.resHtml='';newQ();render();return}
+  if(t.dataset.rec){if(S.recDone)return;S.recDone=t.dataset.rec;const ok=S.recDone===S.rec[1];record('tip',ok);render();return}
+  const a=t.dataset.act;if(a==='hint'){$('#hintbox').innerHTML=`<div class="hintbox">${S.q.hint}</div>`}
+  else if(a==='check')check();
+  else if(a==='skip'){if(S.sim){S.sim.res.push({tt:S.q.tt,ok:false});record(S.q.tid,false);S.sim.i++}S.resHtml='';if(!S.sim||S.sim.i<S.sim.n)newQ();render()}
+  else if(a==='next'){if(S.sim)S.sim.i++;S.resHtml='';if(!S.sim||S.sim.i<S.sim.n)newQ();render()}
+  else if(a==='menu'){e.preventDefault();S.topic=null;S.sim=null;S.resHtml='';render()}
+  else if(a==='sim'){S.tab='praksa';S.topic='mix';S.sim={i:0,n:10,score:0,res:[]};S.resHtml='';newQ();render()}
+  else if(a==='rev'){S.rev[t.dataset.key]=(S.rev[t.dataset.key]||0)+1;render()}
+  else if(a==='revall'){S.rev[t.dataset.key]=+t.dataset.n;render()}
+  else if(a==='revreset'){S.rev[t.dataset.key]=0;render()}
+  else if(a==='zmode'){S.zmode=t.dataset.m;render()}
+  else if(a==='nextrec'){S.rec=pick(SCEN);S.recDone=null;render()}
+  else if(a==='reset'){if(S.confirmReset){mem={};try{localStorage.removeItem('qm_stats')}catch(x){}S.confirmReset=false}else S.confirmReset=true;render()}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('brand')){S.tab='home';S.lesson=null;render()}if(e.key==='Enter'&&e.target.id==='ans')check();if(e.key==='Escape')$('#modal').classList.remove('on')});
+/* header */
+$('#help').onclick=()=>$('#modal').classList.add('on');
+$('#mx').onclick=()=>$('#modal').classList.remove('on');
+$('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.remove('on')};
+function setDark(d){document.documentElement.classList.toggle('dark',d);try{localStorage.setItem('qm_dark',d?'1':'0')}catch(e){}}
+$('#dm').onclick=()=>setDark(!document.documentElement.classList.contains('dark'));
+(function(){let d=null;try{d=localStorage.getItem('qm_dark')}catch(e){}if(d===null)d=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'1':'0';document.documentElement.classList.toggle('dark',d==='1')})();
+(function(){const t=new Date(2026,11,15),n=new Date();n.setHours(0,0,0,0);const d=Math.round((t-n)/864e5);$('#cd').textContent=d>0?`15.12.2026. · još ${d} d`:d===0?'Danas je 15.12.2026.':'';if(d<0)$('#cd').style.display='none'})();
+mem=store.get();render();
+let dp=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#inst').style.display=''});
+$('#inst').onclick=async()=>{if(!dp)return;dp.prompt();try{await dp.userChoice}catch(e){}dp=null;$('#inst').style.display='none'};
+window.addEventListener('appinstalled',()=>{$('#inst').style.display='none'});
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+</script>
+</body>
+</html>

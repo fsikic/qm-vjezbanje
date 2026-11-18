@@ -1,0 +1,16 @@
+{
+  "name": "QM Vježbanje – Kvantitativne metode",
+  "short_name": "QM Vježbanje",
+  "description": "Lekcije, vježbe i kviz iz kolegija Kvantitativne metode odlučivanja u poslovnoj praksi.",
+  "lang": "hr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1e1b4b",
+  "theme_color": "#1e1b4b",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ]
+}
