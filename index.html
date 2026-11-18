@@ -93,6 +93,9 @@ input.ans{width:200px;padding:10px 12px;border:1px solid var(--bd);background:va
 .warn{border-left:3px solid var(--acc);padding:4px 0 4px 12px;margin:6px 0}
 .hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:16px}
 .hgrid .num{font:700 28px ui-monospace,Menlo,monospace;color:var(--acc)}
+.exg{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.exn{width:38px;height:34px;border:1px solid var(--bd);background:var(--card);color:var(--fg);font:600 12px ui-monospace,Menlo,monospace;cursor:pointer}.exn.ans{background:var(--soft)}.exn.cur{outline:2px solid var(--fg);outline-offset:1px}
+.opts button.sel{border-color:var(--fg);background:var(--soft)}
+details.ex2{border:1px solid var(--bd);background:var(--card);padding:10px 14px;margin-top:8px}details.ex2 summary{cursor:pointer;font-weight:600}details.ex2 .q{font-size:16px}
 .navl{display:flex;justify-content:space-between;gap:10px;margin-top:24px;flex-wrap:wrap}
 @media(max-width:560px){.tag{display:none}h1{font-size:24px}.cd{display:none}}
 </style>
@@ -115,8 +118,9 @@ input.ans{width:200px;padding:10px 12px;border:1px solid var(--bd);background:va
   <ol>
     <li><b>Početna:</b> klikni na logo ili karticu <i>Početna</i> bilo kada za povratak na glavni izbornik s preporučenim redoslijedom i prijedlogom najslabije teme.</li>
     <li><b>Uči:</b> 9 lekcija (po jedna za svaku temu): što je, kako prepoznati, formule, postupak, riješeni primjeri iz tvojih vježbi koje otkrivaš korak po korak i česte greške. Na kraju lekcije gumb vodi na vježbanje te teme.</li>
-    <li><b>Praksa:</b> odaberi temu (npr. Binomna) ili <i>Mješovito</i>. Upiši rezultat (zarez ili točka, može i postotak) i klikni <i>Provjeri</i> ili pritisni Enter. Dobiješ točan rezultat i cijeli postupak korak po korak. <i>Hint</i> pokazuje formulu.</li>
+    <li><b>Praksa:</b> odaberi temu (npr. Binomna) ili <i>Mješovito</i>. Upiši rezultat (zarez ili točka, može i postotak) i klikni <i>Provjeri</i> ili pritisni Enter. Dobiješ točan rezultat i cijeli postupak korak po korak. <i>Hint</i> pokazuje formulu, a <i>Prethodno</i> vraća na prijašnja pitanja.</li>
     <li><b>Simulacija ispita:</b> 10 miješanih zadataka zaredom i ocjena na kraju. Radi je pred ispit.</li>
+    <li><b>Glavni ispit:</b> 25 pitanja iz svih poglavlja (20 računskih + 5 prepoznavanja distribucije), poredanih nasumično. Odgovore ne provjeravaš do kraja, možeš se vraćati i mijenjati ih (brojevi pitanja ispod). Mjeri se vrijeme. Na kraju dobiješ rezultat po temama i postupak za svako pitanje.</li>
     <li><b>Prepoznaj tip:</b> kratke priče iz zadataka, ti birate koja je distribucija (binomna, Poisson, hipergeometrijska, normalna, uniformna, eksponencijalna). Najveći izvor grešaka je baš pogrešan odabir formule.</li>
     <li><b>Formule:</b> sažetak svih formula na jednom mjestu.</li>
     <li><b>Z-tablica:</b> cijela tablica normalne distribucije (P(0&lt;Z&lt;z) ili P(Z&lt;z)) i polje za brzu provjeru z-vrijednosti.</li>
@@ -388,29 +392,75 @@ const LESSONS=[
 ];
 
 /* ---------- state & render ---------- */
-const S={tab:'home',lesson:null,rev:{},topic:null,q:null,done:false,sim:null,rec:null,recDone:null,confirmReset:false,zmode:'half'};
+const S={tab:'home',lesson:null,rev:{},topic:null,q:null,done:false,sim:null,rec:null,recDone:null,confirmReset:false,zmode:'half',list:[],ci:0,ex:null,exc:false};
 const TABS=[['home','Početna'],['uci','Uči'],['praksa','Praksa'],['tip','Prepoznaj tip'],['formule','Formule'],['ztab','Z-tablica'],['napredak','Napredak']];
 function renderTabs(){$('#tabs').innerHTML=TABS.map(([k,l])=>`<button data-tab="${k}" class="${S.tab===k?'on':''}">${l}</button>`).join('')}
-function newQ(){const id=S.topic==='mix'?pick(TOPICS).id:S.topic;const T=TOPICS.find(t=>t.id===id);S.q={...pick(T.gens)(),tid:id,tt:T.t,blk:T.blk};S.done=false}
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+function E(){return S.list[S.ci]}
+function newQ(){const id=S.topic==='mix'?pick(TOPICS).id:S.topic;const T=TOPICS.find(t=>t.id===id);S.list.push({q:{...pick(T.gens)(),tid:id,tt:T.t,blk:T.blk},done:false,ok:null,val:'',res:'',rec:false});S.ci=S.list.length-1}
+function simScore(){return S.list.filter(e=>e.ok).length}
+function go(d){if(d<0){if(S.ci>0)S.ci--;return}if(S.ci<S.list.length-1){S.ci++;return}if(S.sim&&S.ci+1>=S.sim.n){S.list.forEach(e=>{if(!e.rec){record(e.q.tid,false);e.rec=true}});S.sim.fin=true;return}newQ()}
+function fmtT(ms){const t=Math.floor(ms/1000);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')}
+function buildExam(){
+  const plan={vjer:3,disk:2,binom:2,pois:2,hiper:2,norm:3,unif:2,expo:2,port:2},calc=[];
+  TOPICS.forEach(T=>{for(let k=0;k<plan[T.id];k++){const g=T.id==='vjer'?T.gens[k%T.gens.length]:pick(T.gens);calc.push({kind:'calc',q:{...g(),tid:T.id,tt:T.t,blk:T.blk},val:''})}});
+  for(let i=calc.length-1;i>0;i--){const j=ri(0,i);[calc[i],calc[j]]=[calc[j],calc[i]]}
+  const rec=[...SCEN].sort(()=>Math.random()-.5).slice(0,5).map(r=>({kind:'rec',r,sel:null}));
+  return{items:[...calc,...rec],i:0,t0:Date.now(),fin:false}}
+function exAns(it){return it.kind==='calc'?String(it.val).trim()!=='':it.sel!==null}
+function gradeEx(it){if(it.kind==='rec')return it.sel===it.r[1];const v=parse(it.val);return !isNaN(v)&&Math.abs(v-it.q.ans)<=it.q.tol}
+function finishExam(){const X=S.ex;X.sc=X.items.map(gradeEx);X.items.forEach((it,k)=>record(it.kind==='calc'?it.q.tid:'tip',X.sc[k]));X.fin=true;X.t1=Date.now();S.exc=false}
+function vExam(){
+  const X=S.ex,n=X.items.length;if(X.fin)return vExamRes();
+  const it=X.items[X.i],ans=X.items.filter(exAns).length,last=X.i===n-1;
+  const nav=X.items.map((m,k)=>`<button data-act="exq" data-n="${k}" class="exn ${k===X.i?'cur':''} ${exAns(m)?'ans':''}">${k+1}</button>`).join('');
+  const dio=it.kind==='calc'?'Dio A · račun':'Dio B · prepoznaj distribuciju';
+  const body=it.kind==='calc'?`<div class="q">${it.q.text}</div><div class="row"><input class="ans" id="exans" inputmode="decimal" autocomplete="off" placeholder="rezultat" value="${esc(it.val)}"></div>`
+    :`<div class="q">${it.r[0]}</div><div class="opts">${TYPES.map(([k,l])=>`<button data-act="exsel" data-k="${k}" class="${it.sel===k?'sel':''}">${l}</button>`).join('')}</div>`;
+  return `<div class="simbar mono"><span>Glavni ispit · pitanje ${X.i+1}/${n} · ${dio}</span><span>⏱ <b id="exT">${fmtT(Date.now()-X.t0)}</b></span></div>
+  <div class="card"><div class="eyebrow">${dio}</div>${body}
+  <div class="row" style="margin-top:16px"><button class="btn ghost" data-act="exgo" data-d="-1" ${X.i===0?'disabled style="opacity:.4"':''}>← Prethodno</button><button class="btn ghost" data-act="exgo" data-d="1" ${last?'disabled style="opacity:.4"':''}>Sljedeće →</button></div>
+  <p style="color:var(--mut);font-size:13px;margin:12px 0 0">Odgovori se ne provjeravaju do kraja ispita. Možeš se vraćati i mijenjati ih. Z-tablica je u izborniku, a ispit ostaje otvoren dok ga ne završiš.</p></div>
+  <div class="exg">${nav}</div>
+  <div class="mono" style="color:var(--mut);margin-bottom:10px">Odgovoreno: ${ans} / ${n}</div>
+  <div class="row"><button class="btn" data-act="exfin">${S.exc==='fin'?`Sigurno? Bez odgovora: ${n-ans}. Klikni za završetak`:'Završi ispit'}</button><button class="btn ghost" data-act="exquit">${S.exc==='quit'?'Sigurno? Klikni za odustajanje':'Odustani'}</button></div>`}
+function vExamRes(){
+  const X=S.ex,n=X.items.length,sc=X.sc,score=sc.filter(Boolean).length,pc=Math.round(score/n*100),per={};
+  X.items.forEach((it,k)=>{const id=it.kind==='calc'?it.q.tid:'tip',lab=it.kind==='calc'?it.q.tt:'Prepoznaj tip (Dio B)';per[id]=per[id]||{lab,ok:0,tot:0};per[id].tot++;if(sc[k])per[id].ok++});
+  const rows=Object.values(per).map(v=>`<tr><td>${v.lab}</td><td>${v.ok} / ${v.tot}</td><td>${Math.round(v.ok/v.tot*100)}%</td></tr>`).join('');
+  const weak=Object.entries(per).filter(([id,v])=>v.ok/v.tot<.5).map(([id,v])=>id==='tip'?`<button class="btn ghost" data-tab="tip">Vježbaj: ${v.lab}</button>`:`<button class="btn ghost" data-lesson="${id}">Ponovi lekciju: ${v.lab}</button>`).join('');
+  const tl=k=>TYPES.find(x=>x[0]===k)[1];
+  const det=X.items.map((it,k)=>{const ok=sc[k];
+    if(it.kind==='calc')return `<details class="ex2"><summary>${k+1}. ${it.q.tt} ${ok?'✓':'✗'}</summary><div class="q" style="margin-top:10px">${it.q.text}</div><p>Tvoj odgovor: <b>${it.val.trim()?esc(it.val.trim()):'bez odgovora'}</b> · Točan rezultat: <b>${fmt(it.q.ans,it.q.dec)}</b></p><div class="steps">${it.q.steps}</div></details>`;
+    return `<details class="ex2"><summary>${k+1}. Prepoznaj tip ${ok?'✓':'✗'}</summary><div class="q" style="margin-top:10px">${it.r[0]}</div><p>Tvoj odgovor: <b>${it.sel?tl(it.sel):'bez odgovora'}</b> · Točno: <b>${tl(it.r[1])}</b></p><div class="steps"><p>${it.r[2]}</p></div></details>`}).join('');
+  return `<div class="eyebrow">Glavni ispit</div><h1>Rezultat: ${score} / ${n}</h1>
+  <p class="lead">${pc}% točno · vrijeme ${fmtT(X.t1-X.t0)}. ${pc>=80?'Odlično, drži ritam.':pc>=50?'Solidno, ponovi teme u kojima si griješio.':'Vrati se na lekcije i formule, pa pokušaj ponovno.'}</p>
+  <table class="prog"><tr><th>Tema</th><th>Točno</th><th>%</th></tr>${rows}</table>
+  ${weak?`<div class="row" style="margin-top:14px">${weak}</div>`:''}
+  <h2 style="margin-top:24px">Pregled pitanja</h2><p class="lead" style="margin-bottom:8px">Klikni na pitanje za postupak.</p>${det}
+  <div class="row" style="margin-top:18px"><button class="btn" data-act="exam">Novi glavni ispit</button><button class="btn ghost" data-act="menu">Natrag na teme</button><button class="btn ghost" data-tab="home">⌂ Početna</button></div>`}
 function parse(v){let s=String(v).trim().replace(/\s/g,'').replace(',','.');let pct=false;if(s.endsWith('%')){pct=true;s=s.slice(0,-1)}let n=parseFloat(s);if(isNaN(n))return NaN;return pct?n/100:n}
 function vPraksa(){
-  if(S.sim&&S.sim.i>=S.sim.n){const s=S.sim,pc=Math.round(s.score/s.n*100);
+  if(S.ex)return vExam();
+  if(S.sim&&S.sim.fin){const s={n:S.sim.n,score:simScore(),res:S.list.map(e=>({tt:e.q.tt,ok:!!e.ok}))},pc=Math.round(s.score/s.n*100);
     return `<div class="eyebrow">Simulacija ispita</div><h1>Rezultat: ${s.score} / ${s.n}</h1><p class="lead">${pc}% točno. ${pc>=80?'Odlično, drži ritam.':pc>=50?'Solidno, ponovi teme u kojima si griješio/la.':'Vrati se na formule i vježbaj temu po temu.'}</p>
     <table class="prog"><tr><th>#</th><th>Tema</th><th>Ishod</th></tr>${s.res.map((r,i)=>`<tr><td>${i+1}</td><td>${r.tt}</td><td>${r.ok?'✓ točno':'✗ netočno'}</td></tr>`).join('')}</table>
     <div class="row" style="margin-top:16px"><button class="btn" data-act="sim">Nova simulacija</button><button class="btn ghost" data-act="menu">Natrag na teme</button><button class="btn ghost" data-tab="home">⌂ Početna</button></div>`}
   if(!S.topic){
     const st=stats();
     return `<div class="eyebrow">Praksa</div><h1>Odaberi temu</h1><p class="lead">Svaki zadatak ima nove brojeve. Cilj: riješiti ga sam, pa tek onda pogledati postupak.</p>
-    <div class="row" style="margin-bottom:16px"><button class="btn" data-act="sim">Simulacija ispita (10 zadataka)</button><button class="btn ghost" data-topic="mix">Mješovito</button></div>
+    <div class="row" style="margin-bottom:16px"><button class="btn" data-act="exam">Glavni ispit (25 pitanja)</button><button class="btn ghost" data-act="sim">Simulacija (10 zadataka)</button><button class="btn ghost" data-topic="mix">Mješovito</button></div>
     <div class="grid">${TOPICS.map(t=>{const s=st[t.id]||{ok:0,tot:0};const p=s.tot?Math.round(s.ok/s.tot*100):0;return `<button class="card" data-topic="${t.id}"><div class="blk">${t.blk}</div><div class="ct">${t.t}</div><div class="cd2">${t.d}</div><div class="bar"><i style="width:${p}%"></i></div><div class="mono" style="color:var(--mut);margin-top:6px">${s.tot?`${s.ok}/${s.tot} točno`:'još nisi vježbao'}</div></button>`}).join('')}</div>`}
-  const q=S.q;
-  const head=S.sim?`<div class="simbar mono"><span><a href="#" data-tab="home" style="color:inherit">⌂ Početna</a> &nbsp;·&nbsp; Simulacija · zadatak ${S.sim.i+1}/${S.sim.n}</span><span>Bodovi: ${S.sim.score}</span></div>`:`<div class="simbar mono"><span><a href="#" data-act="menu" style="color:inherit">← Sve teme</a> &nbsp;·&nbsp; <a href="#" data-tab="home" style="color:inherit">⌂ Početna</a></span><span>${S.topic==='mix'?'Mješovito':TOPICS.find(t=>t.id===S.topic).t}</span></div>`;
+  const e=E(),q=e.q;
+  const head=S.sim?`<div class="simbar mono"><span><a href="#" data-tab="home" style="color:inherit">⌂ Početna</a> &nbsp;·&nbsp; Simulacija · zadatak ${S.ci+1}/${S.sim.n}</span><span>Bodovi: ${simScore()}</span></div>`:`<div class="simbar mono"><span><a href="#" data-act="menu" style="color:inherit">← Sve teme</a> &nbsp;·&nbsp; <a href="#" data-tab="home" style="color:inherit">⌂ Početna</a></span><span>${S.topic==='mix'?'Mješovito':TOPICS.find(t=>t.id===S.topic).t} · ${S.ci+1}.</span></div>`;
   return `${head}<div class="card"><div class="eyebrow">${q.blk} · ${q.tt}</div><div class="q">${q.text}</div>
-   <div class="row"><input class="ans" id="ans" inputmode="decimal" autocomplete="off" placeholder="rezultat" ${S.done?'disabled':''}>
-   <button class="btn" data-act="check" ${S.done?'disabled style="opacity:.4"':''}>Provjeri</button>
+   <div class="row"><input class="ans" id="ans" inputmode="decimal" autocomplete="off" placeholder="rezultat" value="${esc(e.val)}" ${e.done?'disabled':''}>
+   <button class="btn" data-act="check" ${e.done?'disabled style="opacity:.4"':''}>Provjeri</button>
    <button class="btn ghost" data-act="hint">Hint</button>
-   ${S.done?'':'<button class="btn ghost" data-act="skip">Preskoči</button>'}</div>
-   <div id="hintbox"></div><div id="resbox">${S.resHtml||''}</div></div>`}
+   <button class="btn ghost" data-act="prev" ${S.ci===0?'disabled style="opacity:.4"':''}>← Prethodno</button>
+   ${e.done?'':'<button class="btn ghost" data-act="skip">Preskoči</button>'}</div>
+   <div id="hintbox"></div><div id="resbox">${e.res||''}</div>
+   ${e.done?`<div class="row" style="margin-top:14px"><button class="btn" data-act="next">${S.sim&&S.ci+1>=S.sim.n?'Završi simulaciju':'Sljedeći zadatak'}</button></div>`:''}</div>`}
 function vTip(){
   if(!S.rec)S.rec=pick(SCEN);const [t,id,why]=S.rec;
   return `<div class="eyebrow">Prepoznaj tip</div><h1>Koja je to distribucija?</h1><p class="lead">Ne računaj, samo odaberi pravu distribuciju. To je prvi korak svakog zadatka.</p>
@@ -448,7 +498,9 @@ function vHome(){
    <button class="card" data-tab="praksa"><div class="num">2</div><div class="ct">Vježbaj</div><div class="cd2">Novi zadaci s drugim brojevima po temama ili mješovito.</div></button>
    <button class="card" data-tab="tip"><div class="num">3</div><div class="ct">Prepoznaj tip</div><div class="cd2">Uvježbaj odabir prave distribucije prije računanja.</div></button>
    <button class="card" data-act="sim"><div class="num">4</div><div class="ct">Simulacija ispita</div><div class="cd2">10 miješanih zadataka i ocjena na kraju.</div></button>
+   <button class="card" data-act="exam"><div class="num">★</div><div class="ct">Glavni ispit</div><div class="cd2">25 pitanja iz svih poglavlja, bez rješenja do kraja, s mjeračem vremena.</div></button>
    <button class="card" data-tab="formule"><div class="num">∑</div><div class="ct">Formule</div><div class="cd2">Sve formule na jednom mjestu.</div></button>
+   <button class="card" data-tab="ztab"><div class="num">z</div><div class="ct">Z-tablica</div><div class="cd2">Tablica normalne distribucije i brza provjera.</div></button>
    <button class="card" data-tab="napredak"><div class="num">%</div><div class="ct">Napredak</div><div class="cd2">${T?`${O} od ${T} točnih zadataka.`:'Još nema rezultata.'}</div></button>
   </div>
   ${weak?`<div class="res" style="margin-top:20px"><b>Najslabija tema trenutno:</b> ${weak.t} (${Math.round(wp*100)}% točno). <div class="row" style="margin-top:10px"><button class="btn" data-lesson="${weak.id}">Ponovi lekciju</button><button class="btn ghost" data-topic="${weak.id}">Vježbaj</button></div></div>`:''}`}
@@ -472,29 +524,36 @@ function vUci(){
   <div class="card sec"><h3>Česte greške</h3>${l.greske.map(x=>`<div class="warn">${x}</div>`).join('')}</div>
   <div class="row" style="margin-top:18px"><button class="btn" data-topic="${l.id}">Vježbaj ovu temu</button></div>
   <div class="navl">${prev?`<button class="btn ghost" data-lesson="${prev.id}">← ${prev.n}. ${prev.t}</button>`:'<span></span>'}${next?`<button class="btn ghost" data-lesson="${next.id}">${next.n}. ${next.t} →</button>`:''}</div>`}
-document.addEventListener('input',e=>{if(e.target.id!=='zin')return;const z=parseFloat(e.target.value.replace(',','.')),o=document.getElementById('zout');if(isNaN(z)){o.textContent='';return}const f=x=>x.toFixed(4).replace('.',',');o.textContent='P(0<Z<'+Math.abs(z)+') = '+f(tab(z))+'  ·  P(Z<'+z+') = '+f(phi4(z))+'  ·  P(Z>'+z+') = '+f(1-phi4(z))});
-function render(){renderTabs();$('#view').innerHTML=({home:vHome,uci:vUci,praksa:vPraksa,tip:vTip,formule:vFormule,ztab:vZtab,napredak:vNapredak})[S.tab]();const a=$('#ans');if(a&&!S.done)a.focus()}
+document.addEventListener('input',e=>{if(e.target.id==='exans'&&S.ex){S.ex.items[S.ex.i].val=e.target.value;return}if(e.target.id!=='zin')return;const z=parseFloat(e.target.value.replace(',','.')),o=document.getElementById('zout');if(isNaN(z)){o.textContent='';return}const f=x=>x.toFixed(4).replace('.',',');o.textContent='P(0<Z<'+Math.abs(z)+') = '+f(tab(z))+'  ·  P(Z<'+z+') = '+f(phi4(z))+'  ·  P(Z>'+z+') = '+f(1-phi4(z))});
+function render(){renderTabs();$('#view').innerHTML=({home:vHome,uci:vUci,praksa:vPraksa,tip:vTip,formule:vFormule,ztab:vZtab,napredak:vNapredak})[S.tab]();const a=$('#ans')||$('#exans');if(a&&!a.disabled)a.focus()}
 function check(){
-  if(S.done)return;const el=$('#ans'),v=parse(el.value);
+  const e=E();if(e.done)return;const el=$('#ans'),v=parse(el.value);
   if(isNaN(v)){$('#resbox').innerHTML='<div class="res no">Upiši broj (zarez ili točka, može i postotak).</div>';return}
-  const q=S.q,ok=Math.abs(v-q.ans)<=q.tol;S.done=true;record(q.tid,ok);
-  if(S.sim){S.sim.res.push({tt:q.tt,ok});if(ok)S.sim.score++}
-  S.resHtml=`<div class="res ${ok?'ok':'no'}"><b>${ok?'Točno.':'Netočno.'}</b> Tvoj odgovor: <b class="v">${el.value.trim()}</b> · Točan rezultat: <b class="v">${fmt(q.ans,q.dec)}</b><div class="steps" style="margin-top:8px">${q.steps}</div></div><div class="row" style="margin-top:14px"><button class="btn" data-act="next">${S.sim&&S.sim.i+1>=S.sim.n?'Završi simulaciju':'Sljedeći zadatak'}</button></div>`;
+  const q=e.q,ok=Math.abs(v-q.ans)<=q.tol;e.done=true;e.ok=ok;e.val=el.value.trim();
+  if(!e.rec){record(q.tid,ok);e.rec=true}
+  e.res=`<div class="res ${ok?'ok':'no'}"><b>${ok?'Točno.':'Netočno.'}</b> Tvoj odgovor: <b class="v">${esc(e.val)}</b> · Točan rezultat: <b class="v">${fmt(q.ans,q.dec)}</b><div class="steps" style="margin-top:8px">${q.steps}</div></div>`;
   render();
 }
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-tab],[data-topic],[data-act],[data-rec],[data-lesson]');if(!t)return;
   if(t.tagName==='A')e.preventDefault();
   if(t.dataset.lesson!==undefined&&t.hasAttribute('data-lesson')){S.tab='uci';S.lesson=t.dataset.lesson||null;render();window.scrollTo(0,0);return}
-  if(t.dataset.tab){S.tab=t.dataset.tab;S.confirmReset=false;if(S.tab==='home'||S.tab==='uci'){S.sim=null}if(S.tab==='uci')S.lesson=null;if(S.tab==='praksa'&&S.sim&&S.sim.i>=S.sim.n){S.sim=null;S.topic=null}render();window.scrollTo(0,0);return}
-  if(t.dataset.topic){S.tab='praksa';S.topic=t.dataset.topic;S.sim=null;S.resHtml='';newQ();render();return}
+  if(t.dataset.tab){S.tab=t.dataset.tab;S.confirmReset=false;if(S.tab==='home'||S.tab==='uci'){S.sim=null}if(S.tab==='uci')S.lesson=null;if(S.tab==='praksa'&&S.sim&&S.sim.fin){S.sim=null;S.topic=null}render();window.scrollTo(0,0);return}
+  if(t.dataset.topic){S.tab='praksa';S.topic=t.dataset.topic;S.sim=null;S.ex=null;S.list=[];newQ();render();return}
   if(t.dataset.rec){if(S.recDone)return;S.recDone=t.dataset.rec;const ok=S.recDone===S.rec[1];record('tip',ok);render();return}
-  const a=t.dataset.act;if(a==='hint'){$('#hintbox').innerHTML=`<div class="hintbox">${S.q.hint}</div>`}
+  const a=t.dataset.act;if(a==='hint'){$('#hintbox').innerHTML=`<div class="hintbox">${E().q.hint}</div>`}
   else if(a==='check')check();
-  else if(a==='skip'){if(S.sim){S.sim.res.push({tt:S.q.tt,ok:false});record(S.q.tid,false);S.sim.i++}S.resHtml='';if(!S.sim||S.sim.i<S.sim.n)newQ();render()}
-  else if(a==='next'){if(S.sim)S.sim.i++;S.resHtml='';if(!S.sim||S.sim.i<S.sim.n)newQ();render()}
-  else if(a==='menu'){e.preventDefault();S.topic=null;S.sim=null;S.resHtml='';render()}
-  else if(a==='sim'){S.tab='praksa';S.topic='mix';S.sim={i:0,n:10,score:0,res:[]};S.resHtml='';newQ();render()}
+  else if(a==='skip'){const c=E();if(!c.rec){record(c.q.tid,false);c.rec=true}go(1);render()}
+  else if(a==='next'){go(1);render()}
+  else if(a==='prev'){go(-1);render()}
+  else if(a==='menu'){e.preventDefault();S.topic=null;S.sim=null;S.ex=null;S.list=[];S.exc=false;render()}
+  else if(a==='sim'){S.tab='praksa';S.topic='mix';S.sim={n:10};S.ex=null;S.list=[];newQ();render();window.scrollTo(0,0)}
+  else if(a==='exam'){S.tab='praksa';S.topic=null;S.sim=null;S.exc=false;S.ex=buildExam();render();window.scrollTo(0,0)}
+  else if(a==='exgo'){S.exc=false;S.ex.i=Math.max(0,Math.min(S.ex.items.length-1,S.ex.i+(+t.dataset.d)));render();window.scrollTo(0,0)}
+  else if(a==='exq'){S.exc=false;S.ex.i=+t.dataset.n;render();window.scrollTo(0,0)}
+  else if(a==='exsel'){S.ex.items[S.ex.i].sel=t.dataset.k;render()}
+  else if(a==='exfin'){const un=S.ex.items.filter(x=>!exAns(x)).length;if(un>0&&S.exc!=='fin'){S.exc='fin';render()}else{finishExam();render();window.scrollTo(0,0)}}
+  else if(a==='exquit'){if(S.exc==='quit'){S.ex=null;S.exc=false}else S.exc='quit';render()}
   else if(a==='rev'){S.rev[t.dataset.key]=(S.rev[t.dataset.key]||0)+1;render()}
   else if(a==='revall'){S.rev[t.dataset.key]=+t.dataset.n;render()}
   else if(a==='revreset'){S.rev[t.dataset.key]=0;render()}
@@ -502,7 +561,7 @@ document.addEventListener('click',e=>{
   else if(a==='nextrec'){S.rec=pick(SCEN);S.recDone=null;render()}
   else if(a==='reset'){if(S.confirmReset){mem={};try{localStorage.removeItem('qm_stats')}catch(x){}S.confirmReset=false}else S.confirmReset=true;render()}
 });
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('brand')){S.tab='home';S.lesson=null;render()}if(e.key==='Enter'&&e.target.id==='ans')check();if(e.key==='Escape')$('#modal').classList.remove('on')});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('brand')){S.tab='home';S.lesson=null;render()}if(e.key==='Enter'&&e.target.id==='ans')check();if(e.key==='Enter'&&e.target.id==='exans'&&S.ex&&S.ex.i<S.ex.items.length-1){S.ex.i++;render()}if(e.key==='Escape')$('#modal').classList.remove('on')});
 /* header */
 $('#help').onclick=()=>$('#modal').classList.add('on');
 $('#mx').onclick=()=>$('#modal').classList.remove('on');
@@ -512,6 +571,7 @@ $('#dm').onclick=()=>setDark(!document.documentElement.classList.contains('dark'
 (function(){let d=null;try{d=localStorage.getItem('qm_dark')}catch(e){}if(d===null)d=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'1':'0';document.documentElement.classList.toggle('dark',d==='1')})();
 (function(){const t=new Date(2026,11,15),n=new Date();n.setHours(0,0,0,0);const d=Math.round((t-n)/864e5);$('#cd').textContent=d>0?`15.12.2026. · još ${d} d`:d===0?'Danas je 15.12.2026.':'';if(d<0)$('#cd').style.display='none'})();
 mem=store.get();render();
+setInterval(()=>{const el=document.getElementById('exT');if(el&&S.ex&&!S.ex.fin)el.textContent=fmtT(Date.now()-S.ex.t0)},1000);
 let dp=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#inst').style.display=''});
 $('#inst').onclick=async()=>{if(!dp)return;dp.prompt();try{await dp.userChoice}catch(e){}dp=null;$('#inst').style.display='none'};
