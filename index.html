@@ -124,7 +124,7 @@ details.ex2{border:1px solid var(--bd);background:var(--card);padding:10px 14px;
     <li><b>Prepoznaj tip:</b> kratke priče iz zadataka, ti birate koja je distribucija (binomna, Poisson, hipergeometrijska, normalna, uniformna, eksponencijalna). Najveći izvor grešaka je baš pogrešan odabir formule.</li>
     <li><b>Formule:</b> sažetak svih formula na jednom mjestu.</li>
     <li><b>Z-tablica:</b> cijela tablica normalne distribucije (P(0&lt;Z&lt;z) ili P(Z&lt;z)) i polje za brzu provjeru z-vrijednosti.</li>
-    <li><b>Napredak:</b> točni/pokušani odgovori po temama, spremljeni u tvom pregledniku. Slabe teme ponavljaj češće.</li>
+    <li><b>Napredak:</b> točni/pokušani odgovori po temama. Slabe teme ponavljaj češće. Uključi <i>Sinkronizaciju</i> da napredak vidiš na svim uređajima: dobiješ kod, a na drugom mobitelu odabereš <i>Već imam kod</i> i upišeš ga. Bez sinkronizacije napredak ostaje samo u ovom pregledniku.</li>
   </ol>
   <p><b>Na mobitelu kao aplikacija:</b> na Androidu (Chrome) klikni <i>Instaliraj</i> u zaglavlju ili izbornik ⋮ → <i>Dodaj na početni zaslon</i>. Na iPhoneu (Safari) klikni Podijeli → <i>Dodaj na početni zaslon</i>. Nakon prvog otvaranja radi i bez interneta.</p>
   <p style="color:var(--mut);font-size:14px">Tolerancija: rezultat se priznaje ako je unutar zaokruživanja (npr. ±0,003 kod normalne distribucije zbog z-tablice). Gumb ◐ mijenja tamni/svijetli način. Odbrojavanje u zaglavlju vodi do 15.12.2026.</p>
@@ -145,8 +145,49 @@ const tab=z=>Math.round(Math.abs(Phi(Math.abs(z))-0.5)*1e4)/1e4; // P(0<Z<|z|)
 const phi4=z=>z>=0?0.5+tab(z):0.5-tab(z);
 const store={get(){try{return JSON.parse(localStorage.getItem('qm_stats')||'{}')}catch(e){return{}}},set(o){try{localStorage.setItem('qm_stats',JSON.stringify(o))}catch(e){}}};
 let mem={};
-function record(id,ok){const s=Object.keys(mem).length?mem:store.get();s[id]=s[id]||{ok:0,tot:0};s[id].tot++;if(ok)s[id].ok++;mem=s;store.set(s)}
-function stats(){return Object.keys(mem).length?mem:store.get()}
+function record(id,ok){const s=Object.keys(mem).length?mem:store.get();s[id]=s[id]||{ok:0,tot:0};s[id].tot++;if(ok)s[id].ok++;mem=s;store.set(s);schedulePush()}
+const SYNC={url:'https://dfnpwksjatsafrmiudyg.supabase.co',key:'sb_publishable_GqtmtBuYpyqPx1dyHf3NYg_iBnf2wEc'};
+const lsx={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const sync={code:lsx.get('qm_code')||'',dev:lsx.get('qm_dev')||'',others:(()=>{try{return JSON.parse(lsx.get('qm_others')||'{}')}catch(e){return{}}})(),last:+lsx.get('qm_last')||0,reset:+lsx.get('qm_reset')||0,busy:false,again:false,err:'',t:null};
+if(!sync.dev){sync.dev=Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);lsx.set('qm_dev',sync.dev)}
+function own(){return Object.keys(mem).length?mem:store.get()}
+function stats(){const loc=own(),o=sync.others,r={};for(const k of new Set([...Object.keys(loc),...Object.keys(o)])){const a=loc[k]||{ok:0,tot:0},b=o[k]||{ok:0,tot:0};r[k]={ok:a.ok+b.ok,tot:a.tot+b.tot}}return r}
+const CA='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function genCode(){const a=new Uint8Array(10);(window.crypto||{getRandomValues:x=>x.forEach((_,i)=>x[i]=Math.floor(Math.random()*256))}).getRandomValues(a);return Array.from(a,x=>CA[x%32]).join('')}
+const fmtCode=c=>c.slice(0,5)+'-'+c.slice(5);
+async function rpc(fn,body){const r=await fetch(SYNC.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':SYNC.key,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
+function applyRemote(d,adopt){
+  if((d.reset||0)>sync.reset){sync.reset=d.reset;lsx.set('qm_reset',String(d.reset));if(!adopt){mem={};store.set({})}}
+  const o={};for(const [id,b] of Object.entries(d.devices||{})){if(id===sync.dev)continue;for(const [k,v] of Object.entries(b||{})){o[k]=o[k]||{ok:0,tot:0};o[k].ok+=(v.ok|0);o[k].tot+=(v.tot|0)}}
+  sync.others=o;lsx.set('qm_others',JSON.stringify(o));sync.last=Date.now();lsx.set('qm_last',String(sync.last))}
+function safeRender(){if(S.tab==='napredak'||S.tab==='home'||(S.tab==='praksa'&&!S.topic&&!S.ex))render()}
+async function syncNow(manual){
+  if(!sync.code)return;if(sync.busy){sync.again=true;return}
+  sync.busy=true;sync.err='';if(manual)safeRender();
+  try{const d0=await rpc('qm_get',{p_code:sync.code});applyRemote(d0);const d1=await rpc('qm_put',{p_code:sync.code,p_dev:sync.dev,p_bucket:own()});applyRemote(d1,true)}
+  catch(e){sync.err='Nema veze s poslužiteljem. Pokušaj ponovno kasnije.'}
+  sync.busy=false;safeRender();if(sync.again){sync.again=false;syncNow()}}
+function schedulePush(){if(!sync.code)return;clearTimeout(sync.t);sync.t=setTimeout(()=>syncNow(),1500)}
+async function joinCode(raw){
+  const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(c.length<8){S.symsg='Kod je prekratak.';render();return}
+  S.symsg='Povezujem…';render();
+  try{const d=await rpc('qm_get',{p_code:c});
+    if(!Object.keys(d.devices||{}).length&&!(d.reset>0)){S.symsg='Taj kod ne postoji. Provjeri ga.';render();return}
+    sync.code=c;lsx.set('qm_code',c);applyRemote(d,true);S.syjoin=false;S.symsg='';await syncNow(true)}
+  catch(e){S.symsg='Nema veze, pokušaj ponovno.';render()}}
+function vSync(){
+  const tm=sync.last?new Date(sync.last).toLocaleTimeString('hr-HR',{hour:'2-digit',minute:'2-digit'}):'';
+  const msg=S.symsg?`<p style="margin:10px 0 0;color:var(--acc)">${S.symsg}</p>`:'';
+  if(!sync.code)return `<div class="card sec" style="margin-bottom:18px"><h3>Sinkronizacija između uređaja</h3>
+    <p style="margin:0 0 12px">Uključi je da se napredak sprema na internet i vidiš ga na svakom mobitelu i računalu. Ne treba prijava, samo kod.</p>
+    ${S.syjoin?`<div class="row"><input class="ans" id="sycode" autocomplete="off" autocapitalize="characters" placeholder="npr. K7M2Q-9XRTB" style="width:220px"><button class="btn" data-act="sy-join">Poveži</button><button class="btn ghost" data-act="sy-cancel">Odustani</button></div>`
+    :`<div class="row"><button class="btn" data-act="sy-on">Uključi sinkronizaciju</button><button class="btn ghost" data-act="sy-join-open">Već imam kod</button></div>`}${msg}</div>`;
+  return `<div class="card sec" style="margin-bottom:18px"><h3>Sinkronizacija uključena</h3>
+    <div style="font:700 22px ui-monospace,Menlo,monospace;letter-spacing:.08em;margin:4px 0 8px">${fmtCode(sync.code)}</div>
+    <p style="margin:0 0 12px;color:var(--mut);font-size:14px">Na drugom uređaju otvori <i>Napredak</i> → <i>Već imam kod</i> i upiši ovaj kod. Zapiši ga: tko ima kod, vidi i može obrisati tvoj napredak.</p>
+    <div class="row"><button class="btn" data-act="sy-now">Sinkroniziraj sada</button><button class="btn ghost" data-act="sy-copy">Kopiraj kod</button><button class="btn ghost" data-act="sy-off">Isključi na ovom uređaju</button></div>
+    <p class="mono" style="margin:12px 0 0;color:${sync.err?'var(--acc)':'var(--mut)'}">${sync.busy?'Sinkroniziram…':sync.err?sync.err:tm?'Zadnja sinkronizacija: '+tm:'Još nije sinkronizirano'}</p>${msg}</div>`}
 
 /* ---------- generators ---------- */
 function gVenn(){
@@ -484,8 +525,9 @@ function vNapredak(){const st=stats();let T=0,O=0;
   const rows=TOPICS.map(t=>{const s=st[t.id]||{ok:0,tot:0};T+=s.tot;O+=s.ok;return `<tr><td>${t.blk}</td><td>${t.t}</td><td>${s.tot}</td><td>${s.ok}</td><td>${s.tot?Math.round(s.ok/s.tot*100)+'%':'–'}</td></tr>`}).join('');
   const r=st.tip||{ok:0,tot:0};
   return `<div class="eyebrow">Napredak</div><h1>Tvoji rezultati</h1><p class="lead">Ukupno: ${O} od ${T} točnih zadataka. Teme s niskim postotkom ponovi prve.</p>
+  ${vSync()}
   <table class="prog"><tr><th>Blok</th><th>Tema</th><th>Pokušaja</th><th>Točno</th><th>%</th></tr>${rows}<tr><td></td><td>Prepoznaj tip</td><td>${r.tot}</td><td>${r.ok}</td><td>${r.tot?Math.round(r.ok/r.tot*100)+'%':'–'}</td></tr></table>
-  <div style="margin-top:16px"><button class="btn ghost" data-act="reset">${S.confirmReset?'Sigurno? Klikni za brisanje':'Obriši napredak'}</button></div>`}
+  <div style="margin-top:16px"><button class="btn ghost" data-act="reset">${S.confirmReset?(sync.code?'Sigurno? Briše se na SVIM uređajima':'Sigurno? Klikni za brisanje'):'Obriši napredak'}</button></div>`}
 
 function vHome(){
   const st=stats();let T=0,O=0,weak=null,wp=2;
@@ -559,9 +601,16 @@ document.addEventListener('click',e=>{
   else if(a==='revreset'){S.rev[t.dataset.key]=0;render()}
   else if(a==='zmode'){S.zmode=t.dataset.m;render()}
   else if(a==='nextrec'){S.rec=pick(SCEN);S.recDone=null;render()}
-  else if(a==='reset'){if(S.confirmReset){mem={};try{localStorage.removeItem('qm_stats')}catch(x){}S.confirmReset=false}else S.confirmReset=true;render()}
+  else if(a==='reset'){if(S.confirmReset){mem={};store.set({});sync.others={};lsx.set('qm_others','{}');S.confirmReset=false;if(sync.code){rpc('qm_reset',{p_code:sync.code}).then(d=>{applyRemote(d,true);safeRender()}).catch(()=>{sync.err='Brisanje na poslužitelju nije uspjelo. Pokušaj ponovno.';safeRender()})}}else S.confirmReset=true;render()}
+  else if(a==='sy-on'){sync.code=genCode();lsx.set('qm_code',sync.code);S.syjoin=false;S.symsg='';render();syncNow(true)}
+  else if(a==='sy-join-open'){S.syjoin=true;S.symsg='';render();const i=$('#sycode');if(i)i.focus()}
+  else if(a==='sy-cancel'){S.syjoin=false;S.symsg='';render()}
+  else if(a==='sy-join'){joinCode($('#sycode').value)}
+  else if(a==='sy-now'){syncNow(true)}
+  else if(a==='sy-off'){sync.code='';lsx.del('qm_code');sync.others={};lsx.set('qm_others','{}');S.symsg='';render()}
+  else if(a==='sy-copy'){if(navigator.clipboard)navigator.clipboard.writeText(fmtCode(sync.code)).then(()=>{S.symsg='Kod je kopiran.';render()},()=>{})}
 });
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('brand')){S.tab='home';S.lesson=null;render()}if(e.key==='Enter'&&e.target.id==='ans')check();if(e.key==='Enter'&&e.target.id==='exans'&&S.ex&&S.ex.i<S.ex.items.length-1){S.ex.i++;render()}if(e.key==='Escape')$('#modal').classList.remove('on')});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('brand')){S.tab='home';S.lesson=null;render()}if(e.key==='Enter'&&e.target.id==='ans')check();if(e.key==='Enter'&&e.target.id==='sycode')joinCode(e.target.value);if(e.key==='Enter'&&e.target.id==='exans'&&S.ex&&S.ex.i<S.ex.items.length-1){S.ex.i++;render()}if(e.key==='Escape')$('#modal').classList.remove('on')});
 /* header */
 $('#help').onclick=()=>$('#modal').classList.add('on');
 $('#mx').onclick=()=>$('#modal').classList.remove('on');
@@ -571,6 +620,8 @@ $('#dm').onclick=()=>setDark(!document.documentElement.classList.contains('dark'
 (function(){let d=null;try{d=localStorage.getItem('qm_dark')}catch(e){}if(d===null)d=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'1':'0';document.documentElement.classList.toggle('dark',d==='1')})();
 (function(){const t=new Date(2026,11,15),n=new Date();n.setHours(0,0,0,0);const d=Math.round((t-n)/864e5);$('#cd').textContent=d>0?`15.12.2026. · još ${d} d`:d===0?'Danas je 15.12.2026.':'';if(d<0)$('#cd').style.display='none'})();
 mem=store.get();render();
+if(sync.code)syncNow();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&sync.code)syncNow()});
 setInterval(()=>{const el=document.getElementById('exT');if(el&&S.ex&&!S.ex.fin)el.textContent=fmtT(Date.now()-S.ex.t0)},1000);
 let dp=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#inst').style.display=''});
